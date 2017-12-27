@@ -1,0 +1,7 @@
+*.o
+*.mod
+*.txt
+*.py
+*.out
+main
+test
