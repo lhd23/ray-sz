@@ -410,15 +410,15 @@ contains
         szellip_115_=s*(t1+t2+t3)
     end function szellip_115_
     
-    real(dp) function szellip_3333(ulim,szc)
+    real(dp) function szellip_3333(szc,ulim)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Compute the REAL integral from 0 to ulim of                      !
 !                                                                  !
 !    x^3/2 . (x-x1)^{-3/2} . (x-x2)^{-3/2} . (x-x3)^{-3/2} dx      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         implicit none
-        real(dp), intent(in) :: ulim
         type(szcmplx), intent(in) :: szc
+        real(dp), intent(in) :: ulim
         complex(dp) :: s1
         complex(dp), dimension(3) :: ell,coeff
         ell(1)=szellip_1311(szc,ulim)
@@ -433,15 +433,15 @@ contains
         end if
     end function szellip_3333
 
-    real(dp) function szellip_1333(ulim,szc)
+    real(dp) function szellip_1333(szc,ulim)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Compute the REAL integral from 0 to ulim of                      !
 !                                                                  !
 !    x^1/2 . (x-x1)^{-3/2} . (x-x2)^{-3/2} . (x-x3)^{-3/2} dx      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         implicit none
-        real(dp), intent(in) :: ulim
         type(szcmplx), intent(in) :: szc
+        real(dp), intent(in) :: ulim
         complex(dp) :: s1
         complex(dp), dimension(3) :: ell,coeff
         ell(1)=szellip_1311(szc,ulim)
@@ -496,24 +496,24 @@ contains
         complex(dp), dimension(6) :: c,y
         complex(dp) :: x2,x3,x4,prx,z
         real(dp), parameter :: ztol=1.e-12_dp
-        x2 = szc%roots(1)
-        x3 = szc%roots(2)
-        x4 = szc%roots(3)
-        prx = dcmplx(szc%prd_roots)
-        c(1) = 2._dp * szc%f(1)**3 * (prx - x2**3)
-        c(2) = 2._dp * szc%f(2)**3 * (prx - x3**3)
-        c(3) = 2._dp * szc%f(3)**3 * (prx - x4**3)
-        c(4) = (x2 * szc%f(1))**2
-        c(5) = (x3 * szc%f(2))**2
-        c(6) = (x4 * szc%f(3))**2
+        x2=szc%roots(1)
+        x3=szc%roots(2)
+        x4=szc%roots(3)
+        prx=dcmplx(szc%prd_roots)
+        c(1)=2._dp*szc%f(1)**3*(prx-x2**3)
+        c(2)=2._dp*szc%f(2)**3*(prx-x3**3)
+        c(3)=2._dp*szc%f(3)**3*(prx-x4**3)
+        c(4)=(x2*szc%f(1))**2
+        c(5)=(x3*szc%f(2))**2
+        c(6)=(x4*szc%f(3))**2
 ! Use simplified formula (faster)
-        y(1) = c(1) * szellip_1311(szc,ulim)
-        y(2) = c(2) * szellip_1131(szc,ulim)
-        y(3) = c(3) * szellip_1113(szc,ulim)
-        y(4) = c(4) * szellip_1511(szc,ulim)
-        y(5) = c(5) * szellip_1151(szc,ulim)
-        y(6) = c(6) * szellip_1115(szc,ulim)
-        z = sum(y)
+        y(1)=c(1)*szellip_1311(szc,ulim)
+        y(2)=c(2)*szellip_1131(szc,ulim)
+        y(3)=c(3)*szellip_1113(szc,ulim)
+        y(4)=c(4)*szellip_1511(szc,ulim)
+        y(5)=c(5)*szellip_1151(szc,ulim)
+        y(6)=c(6)*szellip_1115(szc,ulim)
+        z=sum(y)
         if (aimag(z)/abs(z) < ztol) then
             szellip_5555 = real(z)
         else
@@ -562,24 +562,24 @@ contains
         complex(dp), dimension(6) :: c,y
         complex(dp) :: x2,x3,x4,prx,z        
         real(dp), parameter :: ztol=1.e-12_dp
-        x2 = szc%roots(1)
-        x3 = szc%roots(2)
-        x4 = szc%roots(3)
-        prx = x2 * x3 + x2 * x4 + x3 * x4
-        c(1) = szc%f(1)**3 * (prx - 3._dp * x2**2)
-        c(2) = szc%f(2)**3 * (prx - 3._dp * x3**2)
-        c(3) = szc%f(3)**3 * (prx - 3._dp * x4**2)
-        c(4) = x2 * szc%f(1)**2
-        c(5) = x3 * szc%f(2)**2
-        c(6) = x4 * szc%f(3)**2
+        x2=szc%roots(1)
+        x3=szc%roots(2)
+        x4=szc%roots(3)
+        prx=x2*x3+x2*x4+x3*x4
+        c(1)=szc%f(1)**3*(prx-3._dp*x2**2)
+        c(2)=szc%f(2)**3*(prx-3._dp*x3**2)
+        c(3)=szc%f(3)**3*(prx-3._dp*x4**2)
+        c(4)=x2*szc%f(1)**2
+        c(5)=x3*szc%f(2)**2
+        c(6)=x4*szc%f(3)**2
 ! Use simplified formula (faster)
-        y(1) = c(1) * szellip_1311(szc,ulim)
-        y(2) = c(2) * szellip_1131(szc,ulim)
-        y(3) = c(3) * szellip_1113(szc,ulim)
-        y(4) = c(4) * szellip_1511(szc,ulim)
-        y(5) = c(5) * szellip_1151(szc,ulim)
-        y(6) = c(6) * szellip_1115(szc,ulim)
-        z = sum(y)
+        y(1)=c(1)*szellip_1311(szc,ulim)
+        y(2)=c(2)*szellip_1131(szc,ulim)
+        y(3)=c(3)*szellip_1113(szc,ulim)
+        y(4)=c(4)*szellip_1511(szc,ulim)
+        y(5)=c(5)*szellip_1151(szc,ulim)
+        y(6)=c(6)*szellip_1115(szc,ulim)
+        z=sum(y)
         if (aimag(z)/abs(z) < ztol) then
             szellip_3555 = real(z)
         else
@@ -628,24 +628,24 @@ contains
         complex(dp), dimension(6) :: c,y
         complex(dp) :: x2,x3,x4,sumx,z
         real(dp), parameter :: ztol=1.e-12_dp
-        x2 = szc%roots(1)
-        x3 = szc%roots(2)
-        x4 = szc%roots(3)
-        sumx = x2 + x3 + x4
-        c(1) = szc%f(1)**3 * (sumx - 3._dp * x2) * 2._dp
-        c(2) = szc%f(2)**3 * (sumx - 3._dp * x3) * 2._dp
-        c(3) = szc%f(3)**3 * (sumx - 3._dp * x4) * 2._dp
-        c(4) = szc%f(1)**2
-        c(5) = szc%f(2)**2
-        c(6) = szc%f(3)**2
+        x2=szc%roots(1)
+        x3=szc%roots(2)
+        x4=szc%roots(3)
+        sumx=x2+x3+x4
+        c(1)=szc%f(1)**3*(sumx-3._dp*x2)*2._dp
+        c(2)=szc%f(2)**3*(sumx-3._dp*x3)*2._dp
+        c(3)=szc%f(3)**3*(sumx-3._dp*x4)*2._dp
+        c(4)=szc%f(1)**2
+        c(5)=szc%f(2)**2
+        c(6)=szc%f(3)**2
 ! Use simplified formula (faster)
-        y(1) = c(1) * szellip_1311(szc,ulim)
-        y(2) = c(2) * szellip_1131(szc,ulim)
-        y(3) = c(3) * szellip_1113(szc,ulim)
-        y(4) = c(4) * szellip_1511(szc,ulim)
-        y(5) = c(5) * szellip_1151(szc,ulim)
-        y(6) = c(6) * szellip_1115(szc,ulim)
-        z = sum(y)
+        y(1)=c(1)*szellip_1311(szc,ulim)
+        y(2)=c(2)*szellip_1131(szc,ulim)
+        y(3)=c(3)*szellip_1113(szc,ulim)
+        y(4)=c(4)*szellip_1511(szc,ulim)
+        y(5)=c(5)*szellip_1151(szc,ulim)
+        y(6)=c(6)*szellip_1115(szc,ulim)
+        z=sum(y)
         if (aimag(z)/abs(z) < ztol) then
             szellip_1555 = real(z)
         else

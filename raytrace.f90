@@ -59,7 +59,6 @@ contains
 
     end subroutine cmbcal
 
-
     subroutine cmbstats(nside,map)
         use cosmo_params, only : T0CMB
         use alm_tools, only : map2alm,alm2cl
@@ -97,8 +96,9 @@ contains
 
     end subroutine cmbstats
 
-!-----------------------------------------------------------------
 end module szcmb
+
+!-----------------------------------------------------------------
 
 program raytrace
     use precision1, only : dp

@@ -26,4 +26,4 @@ test_carlson: $(OBJ) test_carlson.o
 
 
 clean: 
-	rm -f *.o *.a *.mod test
+	rm -f *.o *.a *.mod test main

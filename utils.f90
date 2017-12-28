@@ -899,8 +899,8 @@ CONTAINS
       real(dp), parameter :: C4=3._dp/22._dp, C5=9._dp/52._dp, C6=3._dp/26._dp
       real(dp), parameter :: THIRD=1._dp/3._dp
       real(dp) :: Q,m1
-      complex(dp) :: xm,ym,zm,pm,A0,Am,lambm
-      complex(dp) :: sqrtx,sqrty,sqrtz,sqrtp
+      complex(dp) :: xm,ym,zm,A0,Am,lambm
+      complex(dp) :: sqrtx,sqrty,sqrtz
       complex(dp) :: X1,Y1,Z1,e2,e3,e4,e5
       complex(dp) :: sum1
       A0=(x+y+3._dp*z)*0.2_dp
@@ -945,8 +945,8 @@ CONTAINS
       real(dp), parameter :: C4=3._dp/22._dp, C5=9._dp/52._dp, C6=3._dp/26._dp
       real(dp), parameter :: THIRD=1._dp/3._dp
       real(dp) :: Q,m1
-      real(dp) :: xm,ym,zm,pm,A0,Am,lambm
-      real(dp) :: sqrtx,sqrty,sqrtz,sqrtp
+      real(dp) :: xm,ym,zm,A0,Am,lambm
+      real(dp) :: sqrtx,sqrty,sqrtz
       real(dp) :: X1,Y1,Z1,e2,e3,e4,e5
       real(dp) :: sum1
       A0=(x+y+3._dp*z)*0.2_dp

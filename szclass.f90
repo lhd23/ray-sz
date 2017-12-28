@@ -13,19 +13,19 @@ module szclass
 
 contains
 
-  subroutine init_spline_data(npts,spl)
-      integer, intent(in) :: npts
-      type(spline_data), intent(out) :: spl
-      allocate(spl%x(npts))
-      allocate(spl%f(npts))
-      allocate(spl%ddf(npts),STAT=spl%status)
-  end subroutine init_spline_data
+    subroutine init_spline_data(npts,spl)
+        integer, intent(in) :: npts
+        type(spline_data), intent(out) :: spl
+        allocate(spl%x(npts))
+        allocate(spl%f(npts))
+        allocate(spl%ddf(npts),STAT=spl%status)
+    end subroutine init_spline_data
 
-  subroutine del_spline_data(spl)
-      type(spline_data), intent(inout) :: spl
-      deallocate(spl%ddf)
-      deallocate(spl%f)
-      deallocate(spl%x)
-  end subroutine del_spline_data
+    subroutine del_spline_data(spl)
+        type(spline_data), intent(inout) :: spl
+        deallocate(spl%ddf)
+        deallocate(spl%f)
+        deallocate(spl%x)
+    end subroutine del_spline_data
 
 end module szclass

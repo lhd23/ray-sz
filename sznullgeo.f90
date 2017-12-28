@@ -20,7 +20,7 @@ contains
         real(dp), dimension(4) :: pvi,nvi,pv,nv
         real(dp), parameter :: t_init=0._dp
         real(dp), parameter :: tf=-400._dp 
-        real(dp) :: si,ds,kti,ktf,nv_(4),g(4,4),k2
+        real(dp) :: si,ds,kti,ktf
         si=0._dp
         ds=1.e-2_dp
         call construct_geodesic(t_init,initial_pos,RA,DEC,pvi,nvi)
@@ -28,10 +28,6 @@ contains
         kti=nvi(1) !k^t
         ktf=nv(1)
         redshift=abs(ktf/kti)-1._dp
-        call metric(pv,g)
-        nv_=matmul(g,nv)
-        k2=dot_product(nv_,nv); print *, 'k^mu k_mu: ', k2
-        return
     end subroutine propagation
     
     subroutine solve_nullgeo_eqns(si,pvi,nvi,ds,tf,pv,nv)

@@ -98,8 +98,8 @@ contains
         real(dp) :: C1,e2,e3,Mp,Rd,f1,f2
         real(dp), parameter :: t=0._dp
         C1=sqrt(C0)*C0
-        e2=C1*szellip_3333(shell%r,shell%szc)
-        e3=C1*szellip_1333(shell%r,shell%szc)
+        e2=C1*szellip_3333(shell%szc,shell%r)
+        e3=C1*szellip_1333(shell%szc,shell%r)
         Mp=Mprime(shell%r)
         call get_Rdot(shell,t,Rd)
         f1=2._dp/e2
@@ -150,16 +150,16 @@ contains
         deallocate(rarr)
     end subroutine etbcubic
 
-    subroutine get_R(shell,t,RR)
+    subroutine get_R(shell,t,R)
         implicit none
         type(szshell), intent(in) :: shell      
         real(dp), intent(in) :: t
-        real(dp), intent(out) :: RR
+        real(dp), intent(out) :: R
         real(dp), parameter :: acc=1.e-9_dp
         real(dp), parameter :: h=0.2_dp
         real(dp) :: SQRTC0,t1,Rlo,Rhi
         if (abs(t) < 1.e-14_dp) then
-            RR=shell%r
+            R=shell%r
             return
         end if
         SQRTC0=sqrt(C0)
@@ -167,7 +167,7 @@ contains
         t1=ct2+t
         Rlo=shell%r*(1._dp-h)
         Rhi=shell%r
-        RR=zbrent(R_eqn,Rlo,Rhi,acc)
+        R=zbrent(R_eqn,Rlo,Rhi,acc)
     contains
         real(dp) function R_eqn(Rin)
             implicit none
@@ -178,17 +178,17 @@ contains
         end function R_eqn
     end subroutine get_R
 
-    subroutine get_Rdot(shell,t,Rdot,RR_)
+    subroutine get_Rdot(shell,t,Rdot,R_)
         implicit none
         type(szshell), intent(in) :: shell 
         real(dp), intent(in) :: t
         real(dp), intent(out) :: Rdot
-        real(dp), intent(in), optional :: RR_
-        real(dp) :: RR,p,q,s2,Dt
-        if (present(RR_)) then; RR=RR_; else; call get_R(shell,t,RR); end if
+        real(dp), intent(in), optional :: R_
+        real(dp) :: R,p,q,s2,Dt
+        if (present(R_)) then; R=R_; else; call get_R(shell,t,R); end if
         p=shell%szc%p
         q=shell%szc%q
-        s2=RR**2+p+q/RR
+        s2=R**2+p+q/R
         if (s2 < 0._dp) then
             Dt=-(4._dp*p**3+27._dp*q**2)
             write(*,'(A,X,A,E11.2,X,A,X,A)') &
@@ -201,63 +201,70 @@ contains
         Rdot=sqrt(OH2)*sqrt(s2)
     end subroutine get_Rdot
 
-    subroutine get_Rddot(shell,t,Rddot,RR_)
+    subroutine get_Rddot(shell,t,Rddot,R_)
         implicit none
         type(szshell), intent(in) :: shell
         real(dp), intent(in) :: t
         real(dp), intent(out) :: Rddot
-        real(dp), intent(in), optional :: RR_
-        real(dp) :: RR,M
-        if (present(RR_)) then; RR=RR_; else; call get_R(shell,t,RR); end if
+        real(dp), intent(in), optional :: R_
+        real(dp) :: R,M
+        if (present(R_)) then; R=R_; else; call get_R(shell,t,R); end if
         M=shell%M
-        Rddot=-M/RR**2+OH2*RR
+        Rddot=-M/R**2+OH2*R
     end subroutine get_Rddot
     
-    subroutine get_Rprime(shell,t,Rprime,kp_,RR_,Rd_)
+    subroutine get_Rprime(shell,t,Rprime,kp_,R_,Rd_)
         implicit none
         type(szshell), intent(in) :: shell
         real(dp), intent(in) :: t
         real(dp), intent(out) :: Rprime
-        real(dp), intent(in), optional :: kp_        
-        real(dp), intent(in), optional :: RR_
+        real(dp), intent(in), optional :: kp_
+        real(dp), intent(in), optional :: R_
         real(dp), intent(in), optional :: Rd_
-        real(dp) :: C1,ul,RR,Rd,kp,Mp,e2,e3
+        real(dp) :: C1,R,Rd,kp,Mp,e2,e3
         if (abs(t) < 1.e-14_dp) then
             Rprime=1._dp
             return
         end if
         if (present(kp_)) then; kp=kp_; else; call get_kprime(shell,kp); end if
-        if (present(RR_)) then; RR=RR_; else; call get_R(shell,t,RR); end if
-        if (present(Rd_)) then; Rd=Rd_; else; call get_Rdot(shell,t,Rd); end if
+        if (present(R_)) then; R=R_; else; call get_R(shell,t,R); end if
+        if (present(Rd_)) then; Rd=Rd_; else; call get_Rdot(shell,t,Rd,R); end if
         C1=sqrt(C0)*C0
         Mp=Mprime(shell%r)
-        ul=RR
-        e2=C1*szellip_3333(ul,shell%szc)
-        e3=C1*szellip_1333(ul,shell%szc)
+        e2=C1*szellip_3333(shell%szc,ulim=R)
+        e3=C1*szellip_1333(shell%szc,ulim=R)
         Rprime=Rd*(Mp*e3-0.5_dp*kp*e2)
     end subroutine get_Rprime
 
-    subroutine get_Rdotprime(shell,t,Rdotprime,kp_,RR_,Rd_,Rp_)
+    subroutine get_Rdotprime(shell,t,Rdotprime,kp_,R_,Rd_,Rp_)
         implicit none
         type(szshell), intent(in) :: shell
         real(dp), intent(in) :: t
         real(dp), intent(out) :: Rdotprime
         real(dp), intent(in), optional :: kp_
-        real(dp), intent(in), optional :: RR_
+        real(dp), intent(in), optional :: R_
         real(dp), intent(in), optional :: Rd_
         real(dp), intent(in), optional :: Rp_      
-        real(dp) :: RR,Rd,Rp,kp,M,Mp
+        real(dp) :: R,Rd,Rp,kp,M,Mp
         real(dp) :: f1,f2,g1,g2
-        if (present(kp_)) then; kp=kp_; else; call get_kprime(shell,kp); end if
-        if (present(RR_)) then; RR=RR_; else; call get_R(shell,t,RR); end if
-        if (present(Rd_)) then; Rd=Rd_; else; call get_Rdot(shell,t,Rd); end if
-        if (present(Rp_)) then; Rp=Rp_; else; call get_Rprime(shell,t,Rp); end if
+        if (present(kp_)) then
+            kp=kp_; else; call get_kprime(shell,kp)
+        end if
+        if (present(R_)) then
+            R=R_; else; call get_R(shell,t,R)
+        end if
+        if (present(Rd_)) then
+            Rd=Rd_; else; call get_Rdot(shell,t,Rd,R)
+        end if
+        if (present(Rp_)) then
+            Rp=Rp_; else; call get_Rprime(shell,t,Rp,kp,R,Rd)
+        end if
         M=shell%M
         Mp=Mprime(shell%r)
         f1=1._dp/Rd
-        f2=Mp/RR-0.5_dp*kp
+        f2=Mp/R-0.5_dp*kp
         g1=Rp*f1
-        g2=OH2*RR-M/RR**2
+        g2=OH2*R-M/R**2
         Rdotprime=f1*f2+g1*g2
     end subroutine get_Rdotprime
 
@@ -266,7 +273,7 @@ contains
         type(szshell), intent(in) :: shell
         real(dp), intent(out) :: kpprime
         real(dp), intent(in), optional :: kp_
-        real(dp) :: C1,C2,t,r,ul,Rd,Rdp
+        real(dp) :: C1,C2,t,Rd,Rdp
         real(dp) :: kp,Mp,Mpp,e2,e3,e4
         real(dp) :: e5,e6,d2,d3,f1,f2
         if (present(kp_)) then
@@ -276,42 +283,75 @@ contains
         end if
         C1=sqrt(C0)*C0
         C2=C1*C0
-        r=shell%r
-        ul=r
         t=0._dp
         call get_Rdot(shell,t,Rd)
         call get_Rdotprime(shell,t,Rdp)
-        e2=C1*szellip_3333(ul,shell%szc)
-        e3=C1*szellip_1333(ul,shell%szc)
-        e4=C2*szellip_5555(shell%szc,ul)
-        e5=C2*szellip_3555(shell%szc,ul)
-        e6=C2*szellip_1555(shell%szc,ul)
-        Mp=Mprime(r)
-        Mpp=Mpprime(r)
+        e2=C1*szellip_3333(shell%szc,ulim=shell%r)
+        e3=C1*szellip_1333(shell%szc,ulim=shell%r)
+        e4=C2*szellip_5555(shell%szc,ulim=shell%r)
+        e5=C2*szellip_3555(shell%szc,ulim=shell%r)
+        e6=C2*szellip_1555(shell%szc,ulim=shell%r)
+        Mp=Mprime(shell%r)
+        Mpp=Mpprime(shell%r)
         d2=1._dp/Rd**3-3._dp*Mp*e5+1.5_dp*kp*e4
-        d3=1._dp/(r*Rd**3)-3._dp*Mp*e6+1.5_dp*kp*e5
+        d3=1._dp/(shell%r*Rd**3)-3._dp*Mp*e6+1.5_dp*kp*e5
         f1=-(e3*Mp-1._dp/Rd)*d2/e2
         f2=d3*Mp+e3*Mpp+Rdp/Rd**2
         kpprime=2._dp*(f1+f2)/e2
     end subroutine get_kpprime
 
-    subroutine get_Rpprime(shell,t,Rpprime)
-        use utils, only : dfridr
+    subroutine get_Rpprime(shell,t,Rpprime,kp_,R_,Rd_,Rp_,Rdp_,kpp_)
         implicit none
         type(szshell), intent(in) :: shell
         real(dp), intent(in) :: t
         real(dp), intent(out) :: Rpprime
-        real(dp) :: h,err
-        h=0.1_dp
-        Rpprime=dfridr(Rp_of_r_only,shell%r,h,err)
-    contains
-        real(dp) function Rp_of_r_only(r)
-            implicit none
-            real(dp), intent(in) :: r
-            type(szshell) :: shell1
-            call init_shell(r,shell1)
-            call get_Rprime(shell1,t,Rp_of_r_only)
-        end function Rp_of_r_only
+        real(dp), intent(in), optional :: kp_
+        real(dp), intent(in), optional :: R_
+        real(dp), intent(in), optional :: Rd_
+        real(dp), intent(in), optional :: Rp_
+        real(dp), intent(in), optional :: Rdp_
+        real(dp), intent(in), optional :: kpp_
+        real(dp) :: C1,C2,Mp,Mpp
+        real(dp) :: e2,e3,e4,e5,e6,d2,d3,f1,f2
+        real(dp) :: kp,R,Rd,Rp,Rdp,kpp,Rp_Rd3
+        real(dp), parameter :: HALF=0.5_dp,THREE=3._dp
+        if (abs(t) < 1.e-14_dp) then
+            Rpprime=0._dp
+            return
+        end if
+        if (present(kp_)) then
+            kp=kp_; else; call get_kprime(shell,kp)
+        end if
+        if (present(R_)) then
+            R=R_; else; call get_R(shell,t,R)
+        end if
+        if (present(Rd_)) then
+            Rd=Rd_; else; call get_Rdot(shell,t,Rd,R)
+        end if
+        if (present(Rp_)) then
+            Rp=Rp_; else; call get_Rprime(shell,t,Rp,kp,R,Rd)
+        end if
+        if (present(Rdp_)) then
+            Rdp=Rdp_; else; call get_Rdotprime(shell,t,Rdp,kp,R,Rd,Rp)
+        end if
+        if (present(kpp_)) then
+            kpp=kpp_; else; call get_kpprime(shell,kpp,kp)
+        end if
+        C1=sqrt(C0)*C0
+        C2=C1*C0
+        Mp=Mprime(shell%r)
+        Mpp=Mpprime(shell%r)
+        Rp_Rd3=Rp/Rd**3
+        e2=C1*szellip_3333(shell%szc,ulim=R)
+        e3=C1*szellip_1333(shell%szc,ulim=R)
+        e4=C2*szellip_5555(shell%szc,ulim=R)
+        e5=C2*szellip_3555(shell%szc,ulim=R)
+        e6=C2*szellip_1555(shell%szc,ulim=R)
+        d2=Rp_Rd3-THREE*(Mp*e5-HALF*kp*e4)
+        d3=Rp_Rd3/R-THREE*(Mp*e6-HALF*kp*e5)
+        f1=-HALF*e2*(kp*Rdp+kpp*Rd)
+        f2=e3*(Mp*Rdp+Mpp*Rd)
+        Rpprime=f1+f2+Rd*(Mp*d3-HALF*kp*d2)
     end subroutine get_Rpprime
     
     subroutine Hubble(shell,t,H)

@@ -220,7 +220,7 @@ contains
         real(dp) :: r,p,r2,p2 !upper and lower limits
         real(dp) :: yout,yout_integral
         complex(dp) :: a1,a2,a3
-        integer :: i,j,na,nb
+        integer :: na,nb
         a=(/0._dp,1._dp,1._dp,1._dp/)
         b=(/1._dp,1._dp,-1._dp,0._dp/)
         r=1._dp/SQRT2 !in u
