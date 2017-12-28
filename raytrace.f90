@@ -38,7 +38,7 @@ contains
         do ipix=0,npix-1
             call pix2ang_ring(nside,ipix,theta=b,phi=l)
             call propagation(obs_pos,l,b,red)
-            hpt(ipix) = 1._dp/(1._dp+red)
+            hpt(ipix)=1._dp/(1._dp+red)
         end do
 !$omp end parallel do
         
@@ -80,18 +80,18 @@ contains
 
         map_max=maxval(map)
         map_min=minval(map)
-        print *, 'C_0 =', cl(0,1)
-        print *, 'C_1 =', cl(1,1)
-        print *, 'C_2 =', cl(2,1)
-        print *, 'Tdpl :', 1.5_dp*sqrt(cl(1,1)/PI)
-        print *, 'map maxval: ', map_max
-        print *, 'map minval: ', map_min
+        print *, 'C_0 :', cl(0,1)
+        print *, 'C_1 :', cl(1,1)
+        print *, 'C_2 :', cl(2,1)
+        print *, 'DT/T dpl :', 1.5_dp*sqrt(cl(1,1)/PI)
+        print *, 'map maxval :', map_max
+        print *, 'map minval :', map_min
         dipole=1.5_dp*sqrt(cl(1,1)/PI)*T0CMB
         quadrupole = (3._dp/PI)*cl(2,1)*T0CMB**2
 
         print *, '---------------------------------------------'
-        print *, 'Dipole [mK] =', dipole * 1e3_dp, &
-                 'Quad [uK^2] =', quadrupole * 1e12_dp
+        print *, 'Dipole [mK] =', dipole * 1e3_dp
+        print *, 'Quad [uK^2] =', quadrupole * 1e12_dp
         print *, '---------------------------------------------'
 
     end subroutine cmbstats

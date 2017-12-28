@@ -95,7 +95,7 @@ module szelliptic
   use precision1, only : dp
   use constants
   use utils, only : fcubic_roots,zbrent, &
-                    rj,rd,rf
+                    rj,rd,rf,rc
   implicit none
 
   type szcmplx
@@ -115,7 +115,7 @@ module szelliptic
   end interface szellip_1111
 
   private ! szellip_113_,szellip_115_
-  public :: szcmplx,init_szcmplx,szellip_1111,rf44, &
+  public :: szcmplx,init_szcmplx,szellip_1111, &
           szellip_1311,szellip_1131,szellip_1113, &
           szellip_1511,szellip_1151,szellip_1115, &
           szellip_3333,szellip_1333, &
@@ -222,32 +222,71 @@ contains
         real(dp), intent(in) :: ulim
         type(szcmplx), intent(in) :: szc
         complex(dp), dimension(3) :: x
-        complex(dp) ulim_inv
-        real(dp) f
+        complex(dp) :: ulim_inv
+        real(dp) :: f
         ulim_inv=dcmplx(1._dp/ulim)
         x=ulim_inv-szc%roots_inv
         f=TWOTHIRD*szc%p3
         szellip_1111=f*real(rj(x(1),x(2),x(3),ulim_inv))
     end function szellip_1111
 
-    real(dp) function rf44(a2,b2,a4,ulim)
+    real(dp) function I3prime(a1,a4,b1,b4,f,g,h,x,y)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Compute the integral in terms of Carlson R-functions of             !
+!                                                                     !
+!    I3'=[1,-1,-1,-1]                                                 !
+!       =\int_y^x (f+g t+h t^2) (a_1+b_1 t)^{-1/2} (a_4+b_4 t)^{-1/2} !
+!                                                                     !
+! where f+g t+ h t^2 > 0 and x-y > 0    [Carlson (1991) eq (2.17)]    !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         implicit none
-        real(dp), intent(in) :: a2,b2,a4,ulim
-        real(dp), parameter :: two=2._dp
-        real(dp) :: c2,ulim_inv,xi,a4_inv,M2,Lp2,Lm2
-        c2=a2**2+b2**2
-        ulim_inv=1._dp/ulim
-        a4_inv=1._dp/a4
-        xi=a4*c2
-! Carlson 1991 (4.4)
-        M2=two*xi*((a2/c2-ulim_inv) &
-           +sqrt((a2/c2-ulim_inv)**2+(b2/c2)**2))
-        Lp2=M2+two*xi*(a4_inv-a2/c2 &
-           +sqrt((a2/c2-a4_inv)**2+(b2/c2)**2))
-        Lm2=M2+two*xi*(a4_inv-a2/c2 &
-           -sqrt((a2/c2-a4_inv)**2+(b2/c2)**2))
-        rf44=two*rf(M2,Lm2,Lp2)
-    end function rf44
+        real(dp), intent(in) :: a1,a4,b1,b4
+        real(dp), intent(in) :: f,g,h
+        real(dp), intent(in) :: x,y
+        real(dp), parameter :: TWO=2._dp,THREE=3._dp,FOUR=4._dp
+        real(dp), parameter :: SIX=6._dp,NINE=9._dp
+        real(dp) :: X1,X4,Y1,Y4,d14,beta1
+        real(dp) :: c112,c442,c142,c11,c44,xi,eta
+        real(dp) :: M2,Lp2,Lm2,U,U2,W12
+        real(dp) :: Q12,P12,rho,rj_,rf_,rc_
+! Carlson 1991 (2.1)
+        X1=sqrt(a1+b1*x)
+        X4=sqrt(a4+b4*x)
+        Y1=sqrt(a1+b1*y)
+        Y4=sqrt(a4+b4*y)
+        d14=a1*b4-a4*b1
+! Carlson 1991 (2.2)
+        beta1=g*b1-TWO*h*a1
+! Carlson 1991 (2.3)
+        c112=TWO*f*b1*b1-g*(a1*b1+a1*b1)+TWO*h*a1*a1
+        c442=TWO*f*b4*b4-g*(a4*b4+a4*b4)+TWO*h*a4*a4
+        c142=TWO*f*b1*b4-g*(a1*b4+a4*b1)+TWO*h*a1*a4
+        c11=sqrt(c112)
+        c44=sqrt(c442)
+! (2.4)
+        xi=sqrt(f+x*(g+h*x))
+        eta=sqrt(f+y*(g+h*y))
+! (2.6) xi,eta,x,y,f,g,h all > 0
+        M2=(TWO*xi*eta+TWO*f+g*(x+y)+TWO*h*x*y) &
+            *((X1*Y4+Y1*X4)/(x-y))**2
+! (2.7)
+        Lp2=M2+c142+c11*c44
+        Lm2=M2+c142-c11*c44
+! (2.8)
+        U=(X1*X4*eta+Y1*Y4*xi)/(x-y)
+        U2=U**2
+! (2.10)
+        W12=U2-c112*b4/(TWO*b1)
+        Q12=W12/(X1*Y1)**2
+        P12=Q12+h*b4/b1
+! (2.11)
+        rho=d14*(beta1-sqrt(TWO*h)*c11)/b1
+        rj_=FOUR*rho*rj(M2,Lm2,Lp2,M2+rho)
+        rf_=-SIX*rf(M2,Lm2,Lp2)
+        rc_=THREE*rc(U2,W12)
+        I3prime=sqrt(TWO*c112/(NINE*h))*(rj_+rf_+rc_) &
+                +TWO*rc(P12,Q12)
+    end function I3prime
 
     complex(dp) function szellip_1311(szc,ulim) result(y)
         use elliptic_cache

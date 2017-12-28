@@ -33,11 +33,11 @@ contains
         p2=R**2
         f1=(Pp*c4+Qp*s4)/S
         f3=(Qp*c4-Pp*s4)/S
-        f4=f1*s3 + (Sp/S)*c3
-        f5=(Sp/S*s3+f1*mc3)**2 + (f3*(1._dp-c3))**2
+        f4=f1*s3+(Sp/S)*c3
+        f5=(Sp/S*s3+f1*mc3)**2+(f3*mc3)**2
         fp=ppr+f4
-        grr=f5 + fp**2/(1._dp-k) !metric only
-        gr3=f1*mc3 + (Sp/S)*s3
+        grr=f5+fp**2/(1._dp-k) !metric only
+        gr3=f1*mc3+(Sp/S)*s3
         gr4=mc3*s3*f3 !metric only
         g=0._dp
         g(1,1)= 1._dp
