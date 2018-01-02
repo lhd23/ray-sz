@@ -3,5 +3,7 @@
 *.txt
 *.py
 *.out
+*.so
+lib/*
 main
 test

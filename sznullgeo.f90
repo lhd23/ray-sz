@@ -52,8 +52,8 @@ contains
         real(dp), dimension(4), intent(out) :: pv,nv
         real(dp), dimension(8) :: yi,yo,yf,dyi,dyo
         real(dp), dimension(7,size(yi)) :: k
-        real(dp), parameter :: atol=1.e-9_dp !1e-14_dp
-        real(dp), parameter :: rtol=1.e-11_dp !1e-15_dp
+        real(dp), parameter :: atol=1.e-8_dp
+        real(dp), parameter :: rtol=1.e-10_dp
         real(dp), parameter :: sacc=1.e-9_dp
         real(dp) :: dsi,so,sf
         real(dp) :: errold,err
@@ -66,6 +66,9 @@ contains
         do 
             call dopri_stepper(ode_null,ds,si,so,k,yi,yo,dyi,dyo,err,atol,rtol)
             call controller(err,errold,reject,ds)
+! Guard against solution getting stuck
+            if (ds < 1e-14) &
+                    write(*,*) 'stuck at (t,r,theta,phi): ', yo(5:8); STOP
             dsi=ds
             if (reject) then
                 cycle !retry with new ds 
@@ -108,6 +111,7 @@ contains
         integer j
         x=y(5:8)
         v=y(1:4)
+        if (x(2) < 0._dp) print *, 'unphysical negative r coord: ', x(2)
         call christoffel(x,gam)
         do j=1,4
             gamj=gam(j,:,:)

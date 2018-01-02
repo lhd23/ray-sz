@@ -1,8 +1,14 @@
 F90C = gfortran
 F90FLAGS = -fopenmp -O3
 
-# Debug options
-#F90FLAGS += -fimplicit-none -fbacktrace -ffpe-trap=zero,overflow,underflow #-Wall -g -ffixed-line-length-none
+# Warning flags
+#F90FLAGS += -Wall -Wextra -pedantic -fimplicit-none
+
+# Debug flags
+F90FLAGS += -g -fbacktrace -ffpe-trap=zero,overflow,underflow
+
+# Other flags
+#F90FLAGS += -ffixed-line-length-none
 
 HEALPIX = /usr/local/Healpix_3.30
 CFITSIO = /usr/local/lib
@@ -25,7 +31,7 @@ all: $(LIBDIR)/libmylib.a main
 $(LIBDIR)/libmylib.a: $(SRC)
 	mkdir -p $(INCDIR) $(LIBDIR)
 	$(F90C) $(LIBS) $(INCLUDES) $(F90FLAGS) -c $(SRC)
-	ar -rcv $@ $(OBJ)
+	ar -rcs $@ $(OBJ)
 	mv $(MOD) $(INCDIR)/
 	rm -f $(OBJ)
 

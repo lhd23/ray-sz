@@ -1294,7 +1294,7 @@ CONTAINS
       safe=0.9_dp
       minscale=0.2_dp
       maxscale=10._dp
-      beta=0._dp !0.05_dp
+      beta=0.02_dp !0._dp
       alpha=0.2_dp - beta*0.75_dp
       if (err <= 1._dp) then
           if (err == 0._dp) then

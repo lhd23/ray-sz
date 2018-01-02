@@ -19,7 +19,12 @@ contains
         real(dp), intent(in) :: r
         real(dp) :: x,f
         x=0.5_dp*(r-r0)/dlr
-        f=1._dp/cosh(x)**2
+! need more robust solution but for now
+        if (x > 250._dp) then
+            f=0._dp
+        else
+            f=1._dp/cosh(x)**2
+        end if
         deltaprime=-0.25_dp*amp*f/dlr
     end function deltaprime
 
@@ -29,7 +34,11 @@ contains
         real(dp), intent(in) :: r
         real(dp) :: x,f
         x=0.5_dp*(r-r0)/dlr
-        f=sinh(x)/cosh(x)**3
+        if (x > 250._dp) then
+            f=0._dp
+        else
+            f=tanh(x)/cosh(x)**2
+        end if
         deltapprime=0.25_dp*amp*f/dlr**2
     end function deltapprime
     
