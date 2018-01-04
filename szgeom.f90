@@ -4,9 +4,19 @@ module szgeom
   use szfuncs, only : S_sz,Pp_sz,Qp_sz,Sp_sz,Ppp_sz,Qpp_sz,Spp_sz
   use szlocal
   implicit none
-  
+
+  type four_position
+      real(dp), dimension(4) :: x
+      real(dp), pointer :: t     => null()
+      real(dp), pointer :: r     => null()
+      real(dp), pointer :: theta => null()
+      real(dp), pointer :: phi   => null()
+  end type four_position
+
+  type(four_position) :: pos
+
   private
-  public :: metric,tetrad,christoffel
+  public :: metric,tetrad,christoffel,four_position
 
 contains
 
@@ -14,7 +24,7 @@ contains
         implicit none
         real(dp), dimension(4), intent(in) :: x
         real(dp), dimension(4,4), intent(out) :: g
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: t,rc,theta,phi,s3,c3,s4,c4,mc3
         real(dp) :: Pp,Qp,Sp,S,R,Rp,k,ppr,p2
         real(dp) :: f1,f3,f4,f5,fp,grr,gr3,gr4
@@ -25,10 +35,12 @@ contains
         mc3=1._dp-c3
         Pp=Pp_sz(rc); Qp=Qp_sz(rc); Sp=Sp_sz(rc)
         S=S_sz(rc)
-        call init_shell(rc,shell)
-        call get_R(shell,t,R)
-        call get_Rprime(shell,t,Rp,R_=R)
-        k=shell%k
+        szloc=init_szlocal_class(t,rc)
+        call get_R(szloc)
+        call get_Rprime(szloc)
+        R=szloc%f%R
+        Rp=szloc%f%Rp
+        k=szloc%f%k
         ppr=Rp/R
         p2=R**2
         f1=(Pp*c4+Qp*s4)/S
@@ -54,7 +66,7 @@ contains
         implicit none
         real(dp), dimension(4), intent(in) :: x
         real(dp), dimension(4,4), intent(out) :: Ec
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: t,rc,theta,phi,s3,c3,s4,c4,mc3
         real(dp) :: Pp,Qp,Sp,S,R,Rp,k,ppr
         real(dp) :: f1,f3,f4,fp,gr3
@@ -65,10 +77,12 @@ contains
         mc3=1._dp-c3
         Pp=Pp_sz(rc); Qp=Qp_sz(rc); Sp=Sp_sz(rc)
         S=S_sz(rc)
-        call init_shell(rc,shell)
-        call get_R(shell,t,R)
-        call get_Rprime(shell,t,Rp,R_=R)
-        k=shell%k
+        szloc=init_szlocal_class(t,rc)
+        call get_R(szloc)
+        call get_Rprime(szloc)
+        R=szloc%f%R
+        Rp=szloc%f%Rp
+        k=szloc%f%k
         ppr=Rp/R
         f1=(Pp*c4+Qp*s4)/S
         f3=(Qp*c4-Pp*s4)/S
@@ -89,7 +103,7 @@ contains
         implicit none
         real(dp), dimension(4), intent(in) :: x
         real(dp), dimension(4,4,4), intent(out) :: gam
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: t,rc,theta,phi,s3,c3,s4,c4,mc3
         real(dp) :: R,Rp,kp,Rd,Rdp,Rpp,mk
         real(dp) :: Pp_S,Qp_S,Sp_S,Ppp_S,Qpp_S,Spp_S
@@ -103,14 +117,20 @@ contains
         s3=sin(theta); s4=sin(phi)
         c3=cos(theta); c4=cos(phi)        
         mc3=1._dp-c3
-        call init_shell(rc,shell)
-        call get_R(shell,t,R)
-        call get_Rdot(shell,t,Rd,R_=R)
-        call get_kprime(shell,kp)
-        call get_Rprime(shell,t,Rp,kp_=kp,R_=R,Rd_=Rd)
-        call get_Rdotprime(shell,t,Rdp,kp_=kp,R_=R,Rd_=Rd,Rp_=Rp)
-        call get_Rpprime(shell,t,Rpp,kp_=kp,R_=R,Rd_=Rd,Rp_=Rp,Rdp_=Rdp)
-        mk=1._dp-shell%k
+        szloc=init_szlocal_class(t,rc)
+        call get_R(szloc)
+        call get_Rdot(szloc)
+        call get_kprime(szloc)
+        call get_Rprime(szloc)
+        call get_Rdotprime(szloc)
+        call get_Rpprime(szloc)
+        R=szloc%f%R
+        Rd=szloc%f%Rd
+        kp=szloc%f%kp
+        Rp=szloc%f%Rp
+        Rdp=szloc%f%Rdp
+        Rpp=szloc%f%Rpp
+        mk=1._dp-szloc%f%k
 ! Phi(t,r) and its partial derivatives
         p2=R**2
 ! 1st derivatives of Phi(t,r) divided by Phi(t,r)

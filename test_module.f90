@@ -28,10 +28,10 @@ contains
             ul=r
             !new method (carlson)
             call init_shell(r,shell)
-            f=sqrt(C0)*szellip_1111(ul,shell%szc)
+            f=sqrt(C0)*szellip_1111(shell%szc,ul)
             !NB. last saved roots does not necessarily
             !correspond to the output of zbrent
-            call get_k(r,k)
+            k=get_k(r)
             
             !spline method
             if (allocated(kspl%ddf)) then
@@ -39,7 +39,7 @@ contains
                 p=-kint/OH2
                 q=2._dp*Mfunc(r)/OH2
                 call fcubic_roots(p,q,rts)
-                fint=sqrt(C0)*szellip_1111(ul,rts)
+                fint=sqrt(C0)*szellip_1111(rts,ul)
                 err1=abs(1._dp-fint/f)
             end if
             write(3,fmt='(f10.4,2f16.9,E13.3)') r, f, fint, err1
@@ -49,34 +49,35 @@ contains
   
     subroutine test_get_R
         implicit none
-        type(szshell) :: shell 
-        real(dp) :: t,r,RR
+        type(szlocal_class) :: szloc
+        real(dp) :: t,r
         integer i
         t=-40._dp        
         write(*,*) 'Fix t =', t, ', vary r'
         do i=0,40
             r=1._dp + (200._dp-1._dp)/40 * i
-            call init_shell(r,shell)
-            call get_R(shell,t,RR)
-            write(*,'(f16.9,f16.9)') r,RR
+            szloc=init_szlocal_class(t,r)
+            call get_R(szloc)
+            write(*,'(f16.9,f16.9)') r,szloc%f%R
         end do
         r=20._dp         
         write(*,*) '*********************************'
         write(*,*) 'Fix r =', r, ', vary t'
-        call init_shell(r,shell)
-        do i =0,40
+        do i=0,40
             t=0._dp + (-400._dp)/40 * i
-            call get_R(shell,t,RR)
-            write(*,'(f16.9,f16.9)') t,RR
+            szloc=init_szlocal_class(t,r)
+            call get_R(szloc)
+            write(*,'(f16.9,f16.9)') t,szloc%f%R
         end do
     end subroutine test_get_R
         
     subroutine test_get_kprime
         use utils, only : dfridr
         implicit none
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: h,err,r,kp,kp1,err1
         integer i
+        real(dp), parameter :: t=0._dp
         h = 0.1_dp
         open(unit=13,file='kp.txt',form='formatted',status='replace')
         write(13,'(9X,A,5X,A,7X,A,3X,A)') &
@@ -84,24 +85,24 @@ contains
         do i=0,40
             r=1._dp+(200._dp-1._dp)/40*i
             kp=dfridr(k_of_r,r,h,err)
-            call init_shell(r,shell)       
-            call get_kprime(shell,kp1)
-            err1=abs(1._dp-kp/kp1)
-            write(13,'(F10.4,E18.8,E18.8,E13.3)') r,kp,kp1,err1
+            szloc=init_szlocal_class(t,r)
+            call get_kprime(szloc)
+            err1=abs(1._dp-kp/szloc%f%kp)
+            write(13,'(F10.4,E18.8,E18.8,E13.3)') r,kp,szloc%f%kp,err1
         end do
         close(13)
     contains
         real(dp) function k_of_r(r)
             implicit none
             real(dp), intent(in) :: r
-            call get_k(r,k_of_r)
+            k_of_r=get_k(r)
         end function k_of_r
     end subroutine test_get_kprime
   
     subroutine test_get_Rprime
         use utils, only : dfridr
         implicit none
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: t,h,r,err,err1
         real(dp) :: Rprime,Rprime1
         integer i
@@ -113,9 +114,9 @@ contains
         do i=0,40
             r=1._dp+(200._dp-1._dp)/40*i
             Rprime=dfridr(R_of_r,r,h,err)
-            call init_shell(r,shell)
-            call get_Rprime(shell,t,Rprime1)
-            err1=abs(1._dp-Rprime/Rprime1)
+            szloc=init_szlocal_class(t,r)
+            call get_Rprime(szloc)
+            err1=abs(1._dp-Rprime/szloc%f%Rp)
             write(11,fmt='(F10.4,F16.10,F14.10,E13.3)') r, Rprime, Rprime1, err1
         end do
         close(11)
@@ -123,15 +124,16 @@ contains
         real(dp) function R_of_r(r)
             implicit none
             real(dp), intent(in) :: r
-            call init_shell(r,shell)
-            call get_R(shell,t,R_of_r)
+            szloc=init_szlocal_class(t,r)
+            call get_R(szloc)
+            R_of_r=szloc%f%R
         end function R_of_r
     end subroutine test_get_Rprime
 
     subroutine test_Rdotprime
         use utils, only : dfridr
         implicit none
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: t,h,r,err,err1
         real(dp) :: Rdp,Rdp1
         integer i
@@ -143,24 +145,25 @@ contains
         do i=0,40
             r=1._dp+(200._dp-1._dp)/40*i
             Rdp=dfridr(Rdot_of_r,r,h,err)
-            call init_shell(r,shell)
-            call get_Rdotprime(shell,t,Rdp1)
-            err1=abs(1._dp-Rdp/Rdp1)
+            szloc=init_szlocal_class(t,r)
+            call get_Rdotprime(szloc)
+            err1=abs(1._dp-Rdp/szloc%f%Rdp)
             write(14,'(F10.4,E19.8,E17.8,E13.3)') r, Rdp, Rdp1, err1
         end do
         close(14)
     contains
         real(dp) function Rdot_of_r(r)
             real(dp), intent(in) :: r
-            call init_shell(r,shell)
-            call get_Rdot(shell,t,Rdot_of_r)
+            szloc=init_szlocal_class(t,r)
+            call get_Rdot(szloc)
+            Rdot_of_r=szloc%f%Rd
         end function Rdot_of_r
     end subroutine test_Rdotprime
 
     subroutine test_Hubble
         use cosmo_params, only : H0
         implicit none
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: t,r,H
         integer :: i,j
         open(unit=33,file='H.txt',form='formatted',status='replace')
@@ -170,8 +173,8 @@ contains
             write(33,'(f10.4)',advance='no') r
             do j=0,5
                 t=-100._dp/5*j
-                call init_shell(r,shell)
-                call Hubble(shell,t,H)
+                szloc=init_szlocal_class(t,r)
+                call Hubble(szloc,H)
                 write(33,'(f11.6)',advance='no') H/H0
             end do
             write(33,*)
@@ -438,9 +441,10 @@ contains
     subroutine test_get_kpprime
         use utils, only : dfridr
         implicit none
-        type(szshell) :: shell
+        type(szlocal_class) :: szloc
         real(dp) :: h,err,r,kpp,kpp1,err1
         integer i
+        real(dp), parameter :: t=0._dp
         h = 0.1_dp
         open(unit=13,file='kpp.txt',form='formatted',status='replace')
         write(13,'(9X,A,4X,A,6X,A,3X,A)') &
@@ -448,18 +452,19 @@ contains
         do i=0,40
             r=1._dp+(200._dp-1._dp)/40*i
             kpp=dfridr(kp_of_r,r,h,err)
-            call init_shell(r,shell)       
-            call get_kpprime(shell,kpp1)
-            err1=abs(1._dp-kpp/kpp1)
-            write(13,'(F10.4,E18.8,E18.8,E13.3)') r,kpp,kpp1,err1
+            szloc=init_szlocal_class(t,r)
+            call get_kpprime(szloc)
+            err1=abs(1._dp-kpp/szloc%f%kpp)
+            write(13,'(F10.4,E18.8,E18.8,E13.3)') r,kpp,szloc%f%kpp,err1
         end do
         close(13)
     contains
         real(dp) function kp_of_r(r)
             implicit none
             real(dp), intent(in) :: r
-            call init_shell(r,shell)
-            call get_kprime(shell,kp_of_r)
+            type(szlocal_class) :: szloc
+            call get_kprime(szloc)
+            kp_of_r=szloc%f%kp
         end function kp_of_r
     end subroutine test_get_kpprime
 

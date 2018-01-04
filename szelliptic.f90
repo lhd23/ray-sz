@@ -101,7 +101,7 @@ contains
         end if
     end subroutine init_szcmplx
 
-    real(dp) function szellip_1111_roots(ulim,roots)
+    real(dp) function szellip_1111_roots(roots,ulim)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Compute the integral from 0 to ulim of                          !
 !                                                                 !
@@ -110,9 +110,9 @@ contains
 ! normalised by 1 / sqrt(Omegal * H0^2)                           !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         implicit none
-        real(dp), intent(in) :: ulim
         complex(dp), dimension(3), &
                 intent(in) :: roots
+        real(dp), intent(in) :: ulim
         complex(dp), dimension(3) :: x
         complex(dp) :: ulim_inv
         real(dp) :: w,f        
@@ -124,10 +124,10 @@ contains
         szellip_1111_roots=f*real(rj(x(1),x(2),x(3),ulim_inv))
     end function szellip_1111_roots
 
-    real(dp) function szellip_1111(ulim,szc)
+    real(dp) function szellip_1111(szc,ulim)
         implicit none
-        real(dp), intent(in) :: ulim
         type(szcmplx), intent(in) :: szc
+        real(dp), intent(in) :: ulim
         complex(dp), dimension(3) :: x
         complex(dp) :: ulim_inv
         real(dp) :: f

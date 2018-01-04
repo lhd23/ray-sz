@@ -68,7 +68,7 @@ contains
             call controller(err,errold,reject,ds)
 ! Guard against solution getting stuck
             if (ds < 1e-14) &
-                    write(*,*) 'stuck at (t,r,theta,phi): ', yo(5:8); STOP
+                    STOP 'stuck at (t,r,theta,phi)'
             dsi=ds
             if (reject) then
                 cycle !retry with new ds 
