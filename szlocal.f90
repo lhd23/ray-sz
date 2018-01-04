@@ -46,25 +46,35 @@ module szlocal
 
 contains
 
-    subroutine init_model !init global model
+    subroutine init_model(interp) !init global model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Deallocate arrays from last call to init_model then !
 ! recompute age and splines with new void parameters  !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         implicit none
+        logical, optional, intent(in) :: interp
+        logical do_interp
         integer, parameter :: npts=700
+        if (present(interp)) then
+            do_interp=interp
+        else
+            do_interp=.false.
+        end if
         call get_age !Mpc
         r0=r0/FLRW%h
         dlr=0.1_dp*r0
-        if (associated(kspl)) then
-            call del_spline_data(kspl)
-            deallocate(kspl)
+        if (do_interp) then
+            if (associated(kspl)) then
+                call del_spline_data(kspl)
+                deallocate(kspl)
+            else !get & store splines  
+                allocate(kspl)
+                call etbcubic(npts,kspl)
+            end if
         end if
-        allocate(kspl)
-        call etbcubic(npts,kspl) !get & store splines
     end subroutine init_model
         
-    subroutine init_shell(r,shell)
+    subroutine init_shell(r,shell) !legacy
         implicit none
         real(dp), intent(in) :: r
         type(szshell), intent(out) :: shell
@@ -88,12 +98,14 @@ contains
         real(dp), intent(in) :: r
         type(szlocal_class) :: ctr
         type(szcmplx) :: szc
-        real(dp) :: p,q
-        if (r < 0._dp) write(*,*) 'warning: r is negative'
+        real(dp) :: p,q,k
+        if (r < 0.) write(*,*) 'warning: r is negative'
         ctr%t=t
         ctr%r=r
         allocate(ctr%f%k)
         allocate(ctr%f%M)
+        ! call splint(kspl%x,kspl%f,kspl%ddf,kspl%n,r,k)
+        ! ctr%f%k=k
         ctr%f%k=get_k(r)
         ctr%f%M=Mfunc(r)
         p=-ctr%f%k*C0
@@ -461,5 +473,5 @@ contains
         Rdp=szloc%f%Rdp
         H=THIRD*(2._dp*Rd/R+Rdp/Rp)
     end subroutine Hubble
-    
+
 end module szlocal

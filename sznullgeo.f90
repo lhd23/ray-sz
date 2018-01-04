@@ -52,23 +52,28 @@ contains
         real(dp), dimension(4), intent(out) :: pv,nv
         real(dp), dimension(8) :: yi,yo,yf,dyi,dyo
         real(dp), dimension(7,size(yi)) :: k
-        real(dp), parameter :: atol=1.e-8_dp
-        real(dp), parameter :: rtol=1.e-10_dp
         real(dp), parameter :: sacc=1.e-9_dp
+        real(dp) :: atol=1.e-8_dp
+        real(dp) :: rtol=1.e-10_dp
         real(dp) :: dsi,so,sf
         real(dp) :: errold,err
         logical reject
         reject=.true.
         errold=1.e-4_dp
-        yi(1:4)=nvi
+  1     yi(1:4)=nvi
         yi(5:8)=pvi
         call ode_null(si,yi,dyi)
         do 
             call dopri_stepper(ode_null,ds,si,so,k,yi,yo,dyi,dyo,err,atol,rtol)
             call controller(err,errold,reject,ds)
 ! Guard against solution getting stuck
-            if (ds < 1e-14) &
-                    STOP 'stuck at (t,r,theta,phi)'
+            if (ds < 1.e-14) then
+                write(*,*) 'stuck at (t,r,theta,phi) = ', yo(5:8)
+                write(*,*) 'restarting do loop with lower tolerance'
+                atol=atol*10._dp
+                rtol=rtol*10._dp
+                goto 1
+            end if
             dsi=ds
             if (reject) then
                 cycle !retry with new ds 
@@ -111,7 +116,7 @@ contains
         integer j
         x=y(5:8)
         v=y(1:4)
-        if (x(2) < 0._dp) print *, 'unphysical negative r coord: ', x(2)
+        if (x(2) < 0._dp) print *, 'negative r coord: ', x(2)
         call christoffel(x,gam)
         do j=1,4
             gamj=gam(j,:,:)

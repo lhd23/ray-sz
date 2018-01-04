@@ -7,10 +7,7 @@ module szgeom
 
   type four_position
       real(dp), dimension(4) :: x
-      real(dp), pointer :: t     => null()
-      real(dp), pointer :: r     => null()
-      real(dp), pointer :: theta => null()
-      real(dp), pointer :: phi   => null()
+      type(szlocal_class) :: szloc
   end type four_position
 
   type(four_position) :: pos
@@ -19,6 +16,14 @@ module szgeom
   public :: metric,tetrad,christoffel,four_position
 
 contains
+
+    function init_four_position(four_pos_arr) result(f)
+        implicit none
+        real(dp), dimension(4), intent(in) :: four_pos_arr
+        type(four_position) :: f
+        f%x=four_pos_arr
+        f%szloc=init_szlocal_class(f%x(1),f%x(2))
+    end function init_four_position
 
     subroutine metric(x,g)
         implicit none
@@ -153,7 +158,7 @@ contains
         N3_S=Qp_S*c4-Pp_S*s4
 ! d/dr (dN/dphi /S) = (dN'/dphi)/S - dN/dphi S'/S^2
         fr3=Qpp_S*c4-Ppp_S*s4-N3_S*Sp_S
-! N/S sin(th) + S'/S cos(th)
+! (4.11) Bolejko 2016 (up to sign): N/S sin(th) + S'/S cos(th)
         f4=N_S*s3+Sp_S*c3
         fp=ppr+f4
 ! (4.7) Bolejko 2016: third and fourth square bracket terms
@@ -240,5 +245,27 @@ contains
                 gam(4,4,3)=gam(4,3,4)
         end select
     end subroutine christoffel
+
+    subroutine density(x,rho)
+        implicit none
+        type(four_position), intent(inout) :: x
+        real(dp), intent(out) :: rho
+        real(dp) :: Pp,Qp,Sp,S,N,ep_e
+        real(dp) :: t,rc,th,ph,R,R2,Rp,M,Mp
+        t=x%x(1); rc=x%x(2); th=x%x(3); ph=x%x(4)
+        S=S_sz(rc)
+        Pp=Pp_sz(rc); Qp=Qp_sz(rc); Sp=Sp_sz(rc)
+        N=Pp*cos(ph)+Qp*sin(ph)
+! BNW 2016 (4.11): epsilon'/epsilon
+        ep_e=-(N*sin(th)+Sp*cos(th))/S
+        Mp=Mprime(r)
+        call get_R(x%szloc)
+        call get_Rprime(x%szloc)
+        R=x%szloc%f%R
+        R2=R**2
+        Rp=x%szloc%f%Rp
+        M=x%szloc%f%M
+        rho=2._dp*(Mp-3._dp*M*ep_e)/(R2*(Rp-R*ep_e))
+    end subroutine density
 
 end module szgeom
