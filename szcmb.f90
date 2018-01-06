@@ -12,7 +12,7 @@ contains
 !   
         use cosmo_params, only : r_obs,theta_obs,model
         use szlocal, only : init_model
-        use sznullgeo, only : propagation
+        use sznullgeo, only : rayshoot_dr
         use pix_tools, only : pix2ang_ring,nside2npix
         implicit none
         integer, intent(in) :: nside
@@ -38,7 +38,7 @@ contains
 !$omp schedule(guided)
         do ipix=0,npix-1
             call pix2ang_ring(nside,ipix,theta=b,phi=l)
-            call propagation(obs_pos,l,b,red)
+            call rayshoot_dr(obs_pos,l,b,red,iexit=0,val_exit=-400._dp)
             hpt(ipix)=1._dp/(1._dp+red)
         end do
 !$omp end parallel do

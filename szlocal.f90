@@ -396,7 +396,7 @@ contains
         if (associated(szloc%f%kpp)) then
             return
         else
-            allocate(szloc%f%kp)
+            allocate(szloc%f%kpp)
             if (.not. associated(szloc%f%kp)) &
                     call get_kprime(szloc)
             kp=szloc%f%kp

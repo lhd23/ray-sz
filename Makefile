@@ -5,7 +5,7 @@ F90FLAGS = -fopenmp -O3
 #F90FLAGS += -Wall -Wextra -pedantic -fimplicit-none
 
 # Debug flags
-F90FLAGS += -g -fbacktrace -ffpe-trap=zero,overflow,underflow
+#F90FLAGS += -g -fbacktrace -ffpe-trap=zero,overflow,underflow -fbounds-check
 
 # Other flags
 #F90FLAGS += -ffixed-line-length-none

@@ -468,7 +468,7 @@ contains
         end function kp_of_r
     end subroutine test_get_kpprime
 
-    subroutine test_propagation
+    subroutine test_rayshoot_dr
         use cosmo_params, only : r_obs,theta_obs
         use sznullgeo
         implicit none
@@ -476,8 +476,8 @@ contains
         RA=0.78539816339744828_dp
         DEC=0.10210642238260403_dp
         obs_pos=(/r_obs,theta_obs,0.543*PI/)
-        call propagation(obs_pos,RA,DEC,red)
+        call rayshoot_dr(obs_pos,RA,DEC,red,iexit=0,val_exit=-400._dp)
         print *,'redshift', red
-    end subroutine test_propagation
+    end subroutine test_rayshoot_dr
 
 end module test_module

@@ -27,6 +27,6 @@ program test
   ! call test_get_kpprime
   ! call test_Hubble
   ! call test_pX555
-  call test_propagation
+  call test_rayshoot_dr
   
 end program test
