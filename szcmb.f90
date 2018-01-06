@@ -31,6 +31,7 @@ contains
 ! Initialise model; compute splines; calculate age of universe
         call init_model
         obs_pos=(/r_obs,theta_obs,0.543*PI/)
+! sky appears the same for any azimuthal angle (phi arbitrary)
 
 !$omp parallel do private(red,l,b) &
 !$omp shared(obs_pos,hpt) &

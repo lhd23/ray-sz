@@ -1,7 +1,7 @@
 module sznullgeo
   use precision1, only : dp
   use constants
-  use szgeom, only : metric,tetrad,christoffel
+  use szgeom
   use pix_tools, only : ang2vec
   implicit none
 
@@ -12,7 +12,6 @@ module sznullgeo
 contains
 
     subroutine propagation(initial_pos,RA,DEC,redshift)
-! If raytracing over the sky then phi is arbitrary for axisymmetry
         implicit none
         real(dp), intent(in), dimension(3) :: initial_pos
         real(dp), intent(in) :: RA,DEC
@@ -20,7 +19,7 @@ contains
         real(dp), dimension(4) :: pvi,nvi,pv,nv
         real(dp), parameter :: t_init=0._dp
         real(dp), parameter :: tf=-400._dp 
-        real(dp) :: si,ds,kti,ktf
+        real(dp) :: kti,ktf,si,ds
         si=0._dp
         ds=1.e-2_dp
         call construct_geodesic(t_init,initial_pos,RA,DEC,pvi,nvi)
@@ -105,6 +104,18 @@ contains
     end subroutine solve_nullgeo_eqns
 
     subroutine ode_null(s,y,dy)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! The null geodesic equations as a first-order ODE solved    !
+! simultaneously with the angular diameter distance D_A      !
+! This routine takes as input: (1) the indepedent variable s !
+! which, although is not explicit, is generically required   !
+! by the ODE solver and (2) the dependent variable y at s    !
+!                                                            !
+!    s    affine parameter (independent variable)            !
+!    y    (k^mu, x^mu, dDA/ds, DA); size(y)=10               !
+!    dy   (dk^mu/ds, dx^mu/ds, d2DA/ds2, dDA/ds)             !
+!                                                            !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         implicit none
         real(dp), intent(in) :: s
         real(dp), dimension(:), intent(in) :: y
@@ -112,18 +123,32 @@ contains
         real(dp), dimension(4) :: x,v
         real(dp), dimension(4,4) :: gamj
         real(dp), dimension(4,4,4) :: gam
-        real(dp) :: gkk
-        integer j
+        type(four_position) :: xc
+        real(dp) :: gkk,rho
+        integer :: i,j,k
         x=y(5:8)
         v=y(1:4)
-        if (x(2) < 0._dp) print *, 'negative r coord: ', x(2)
-        call christoffel(x,gam)
-        do j=1,4
-            gamj=gam(j,:,:)
+        if (x(2) < 0.) then
+            write(*,*) 'negative r coord: ', x(2)
+        end if
+        xc=init_four_position(x)
+        call christoffel(xc,gam)
+        ! call density(xc,rho)
+        do k=1,4
+            gamj=gam(k,:,:)
             gkk=dot_product(matmul(gamj,v),v)
-            dy(j)=-gkk
+            ! gkk=0._dp
+            ! do j=1,4
+            !     do i=1,4
+            !         gkk=gkk+gam(k,i,j)*v(i)*v(j)
+            !     end do
+            ! end do
+            dy(k)=-gkk
         end do
         dy(5:8)=y(1:4)
+        ! dy(9)=-0.5_dp*rho*y(1)*y(1)
+        ! dy(10)=y(9)
+        call del_four_position(xc)
     end subroutine ode_null
     
     subroutine construct_geodesic(ti,obs_pos,ra,dec,pv,nv) !fix v3

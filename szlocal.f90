@@ -113,6 +113,21 @@ contains
         call init_szcmplx(p,q,ctr%szc)
     end function init_szlocal_class
 
+    subroutine del_szlocal_class(s)
+        implicit none
+        type(szlocal_class), intent(inout) :: s
+        if (associated(s%f%R)) deallocate(s%f%R)
+        if (associated(s%f%Rd)) deallocate(s%f%Rd)
+        if (associated(s%f%Rp)) deallocate(s%f%Rp)
+        if (associated(s%f%Rpp)) deallocate(s%f%Rpp)
+        if (associated(s%f%Rdd)) deallocate(s%f%Rdd)
+        if (associated(s%f%Rdp)) deallocate(s%f%Rdp)
+        if (associated(s%f%M)) deallocate(s%f%M)
+        if (associated(s%f%k)) deallocate(s%f%k)
+        if (associated(s%f%kp)) deallocate(s%f%kp)
+        if (associated(s%f%kpp)) deallocate(s%f%kpp)
+    end subroutine del_szlocal_class
+
     function get_k(r) result(k)
         implicit none
         real(dp), intent(in) :: r
@@ -305,7 +320,7 @@ contains
                     szloc%f%Rp=1._dp
                     return
                 end if
-                if (.not. associated(szloc%f%kp)) &
+                if (.not. associated(szloc%f%k)) &
                         call get_kprime(szloc)
                 if (.not. associated(szloc%f%R)) &
                         call get_R(szloc)
@@ -381,7 +396,7 @@ contains
         if (associated(szloc%f%kpp)) then
             return
         else
-            allocate(szloc%f%kpp)
+            allocate(szloc%f%kp)
             if (.not. associated(szloc%f%kp)) &
                     call get_kprime(szloc)
             kp=szloc%f%kp

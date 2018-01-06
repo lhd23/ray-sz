@@ -13,7 +13,8 @@ module szgeom
   type(four_position) :: pos
 
   private
-  public :: metric,tetrad,christoffel,four_position
+  public :: init_four_position,del_four_position,four_position, &
+            metric,tetrad,christoffel,density
 
 contains
 
@@ -24,6 +25,14 @@ contains
         f%x=four_pos_arr
         f%szloc=init_szlocal_class(f%x(1),f%x(2))
     end function init_four_position
+
+    subroutine del_four_position(xc)
+! Pointers are allocated so need deallocate (not nullify)
+! to prevent memory from becoming inaccessible
+        implicit none
+        type(four_position), intent(inout) :: xc
+        call del_szlocal_class(xc%szloc)
+    end subroutine del_four_position
 
     subroutine metric(x,g)
         implicit none
@@ -104,11 +113,10 @@ contains
         Ec(4,2)=-Ec(2,2)*mc3*f3/s3
     end subroutine tetrad
 
-    subroutine christoffel(x,gam)
+    subroutine christoffel(xc,gam)
         implicit none
-        real(dp), dimension(4), intent(in) :: x
+        type(four_position), intent(inout) :: xc
         real(dp), dimension(4,4,4), intent(out) :: gam
-        type(szlocal_class) :: szloc
         real(dp) :: t,rc,theta,phi,s3,c3,s4,c4,mc3
         real(dp) :: R,Rp,kp,Rd,Rdp,Rpp,mk
         real(dp) :: Pp_S,Qp_S,Sp_S,Ppp_S,Qpp_S,Spp_S
@@ -117,25 +125,24 @@ contains
         real(dp) :: gr3,gr4,rr3,rp3,frrr
         real(dp) :: N_S,Np_S,N3_S,g23,g24,g33,g44
 ! Here rc is coordinate r not areal R
-        t=x(1); rc=x(2); theta=x(3); phi=x(4)
+        t=xc%x(1); rc=xc%x(2); theta=xc%x(3); phi=xc%x(4)
 ! define shorthands
         s3=sin(theta); s4=sin(phi)
         c3=cos(theta); c4=cos(phi)        
         mc3=1._dp-c3
-        szloc=init_szlocal_class(t,rc)
-        call get_R(szloc)
-        call get_Rdot(szloc)
-        call get_kprime(szloc)
-        call get_Rprime(szloc)
-        call get_Rdotprime(szloc)
-        call get_Rpprime(szloc)
-        R=szloc%f%R
-        Rd=szloc%f%Rd
-        kp=szloc%f%kp
-        Rp=szloc%f%Rp
-        Rdp=szloc%f%Rdp
-        Rpp=szloc%f%Rpp
-        mk=1._dp-szloc%f%k
+        call get_R(xc%szloc)
+        call get_Rdot(xc%szloc)
+        call get_kprime(xc%szloc)
+        call get_Rprime(xc%szloc)
+        call get_Rdotprime(xc%szloc)
+        call get_Rpprime(xc%szloc)
+        R=xc%szloc%f%R
+        Rd=xc%szloc%f%Rd
+        kp=xc%szloc%f%kp
+        Rp=xc%szloc%f%Rp
+        Rdp=xc%szloc%f%Rdp
+        Rpp=xc%szloc%f%Rpp
+        mk=1._dp-xc%szloc%f%k
 ! Phi(t,r) and its partial derivatives
         p2=R**2
 ! 1st derivatives of Phi(t,r) divided by Phi(t,r)
@@ -246,25 +253,26 @@ contains
         end select
     end subroutine christoffel
 
-    subroutine density(x,rho)
+    subroutine density(xc,rho)
+! Computes kappa \times rho = 8\pi G rho
         implicit none
-        type(four_position), intent(inout) :: x
+        type(four_position), intent(inout) :: xc
         real(dp), intent(out) :: rho
         real(dp) :: Pp,Qp,Sp,S,N,ep_e
         real(dp) :: t,rc,th,ph,R,R2,Rp,M,Mp
-        t=x%x(1); rc=x%x(2); th=x%x(3); ph=x%x(4)
+        t=xc%x(1); rc=xc%x(2); th=xc%x(3); ph=xc%x(4)
         S=S_sz(rc)
         Pp=Pp_sz(rc); Qp=Qp_sz(rc); Sp=Sp_sz(rc)
         N=Pp*cos(ph)+Qp*sin(ph)
 ! BNW 2016 (4.11): epsilon'/epsilon
         ep_e=-(N*sin(th)+Sp*cos(th))/S
-        Mp=Mprime(r)
-        call get_R(x%szloc)
-        call get_Rprime(x%szloc)
-        R=x%szloc%f%R
+        Mp=Mprime(rc)
+        call get_R(xc%szloc)
+        call get_Rprime(xc%szloc)
+        R=xc%szloc%f%R
         R2=R**2
-        Rp=x%szloc%f%Rp
-        M=x%szloc%f%M
+        Rp=xc%szloc%f%Rp
+        M=xc%szloc%f%M
         rho=2._dp*(Mp-3._dp*M*ep_e)/(R2*(Rp-R*ep_e))
     end subroutine density
 
