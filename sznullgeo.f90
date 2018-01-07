@@ -2,7 +2,7 @@ module sznullgeo
   use precision1, only : dp
   use constants
   use szgeom
-  use pix_tools, only : ang2vec
+  use utils, only : ang2vec
   implicit none
 
   private
@@ -11,7 +11,7 @@ module sznullgeo
   
 contains
 
-    subroutine rayshoot_dr(initial_pos,RA,DEC,yout,iexit,val_exit)
+    subroutine rayshoot_dr(initial_pos,theta_local_sky,phi_local_sky,yout,iexit,val_exit)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! The exit options are                                                        !
 !                                                                             !
@@ -23,7 +23,8 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         implicit none
         real(dp), intent(in)  :: initial_pos(3)
-        real(dp), intent(in)  :: RA,DEC
+        real(dp), intent(in)  :: theta_local_sky
+        real(dp), intent(in)  :: phi_local_sky
         real(dp), intent(out) :: yout
         integer,  intent(in)  :: iexit
         real(dp), intent(in)  :: val_exit
@@ -33,7 +34,7 @@ contains
         t_init=0._dp
         si=0._dp
         ds=1.e-2_dp
-        call construct_ray(t_init,initial_pos,RA,DEC,pvi,nvi)
+        call construct_ray(t_init,initial_pos,theta_local_sky,phi_local_sky,pvi,nvi)
         if (iexit == 1 .or. iexit == 2) then
             if (val_exit < 0.) STOP 'exit value must be positive'
             !null geodesics and DA
@@ -196,11 +197,12 @@ contains
         call del_four_position(xc)
     end subroutine ode_null
     
-    subroutine construct_ray(ti,obs_pos,ra,dec,pv,nv) !fix v3
+    subroutine construct_ray(ti,obs_pos,theta_local_sky,phi_local_sky,pv,nv) !fix v3
         implicit none
         real(dp), intent(in) :: ti
         real(dp), dimension(3), intent(in) :: obs_pos
-        real(dp), intent(in) :: ra,dec !radians
+        real(dp), intent(in) :: theta_local_sky !radians
+        real(dp), intent(in) :: phi_local_sky
         real(dp), dimension(4), intent(out) :: pv,nv
         real(dp), dimension(4) :: nvo
         real(dp), dimension(3) :: dv
@@ -214,7 +216,7 @@ contains
         call tetrad(pv,Ec)
 !   nv - null vector
 !   dv - directional vector in local orthonormal frame
-        call ang2vec(dec,ra,dv)
+        call ang2vec(theta_local_sky,phi_local_sky,dv)
 ! Re-orient healpix coordinates so direction of north pole 
 ! coincides with radial direction BV(2,:). MAKE SURE phi=PI/2
         ! thetac=pi-theta

@@ -1,17 +1,3 @@
-subroutine raytrace(x_model,x_alpha,x_amp,x_r0,x_r_obs,x_theta_obs,yout)
-    use cosmo_params, only : model,alpha,amp,r0,r_obs,theta_obs,FLRW
-    use constants, only : PI
-    use szcmb
-    implicit none
-    character(len=8), intent(in) :: x_model
-    real(kind=8), intent(in) :: x_alpha
-    real(kind=8), intent(in) :: x_amp
-    real(kind=8), intent(in) :: x_r0
-    real(kind=8), intent(in) :: x_r_obs
-    real(kind=8), intent(in) :: x_theta_obs
-    real(kind=8), intent(out) :: yout
-    integer, parameter :: nside=8
-
 !======== Foreground model parameters ===========
 !
 !   alpha  :   dipole parameter
@@ -25,13 +11,62 @@ subroutine raytrace(x_model,x_alpha,x_amp,x_r0,x_r_obs,x_theta_obs,yout)
 !
 !           0 <= thta_obs <= 1
 !
-    model=x_model
-    alpha=x_alpha
-    amp=x_amp
-    r0=x_r0
-    r_obs=x_r_obs/FLRW%h
-    theta_obs=x_theta_obs*PI
+subroutine raytrace(p_model,p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
+    use cosmo_params, only : model,alpha,amp,r0,r_obs,theta_obs,FLRW
+    use constants, only : PI
+    use szlocal, only : init_model
+    use szcmb
+    implicit none
+    character(len=8), intent(in) :: p_model
+    real(kind=8),     intent(in) :: p_alpha
+    real(kind=8),     intent(in) :: p_amp
+    real(kind=8),     intent(in) :: p_r0
+    real(kind=8),     intent(in) :: p_r_obs
+    real(kind=8),     intent(in) :: p_theta_obs
+    real(kind=8),     intent(out) :: yout
+    integer, parameter :: nside=8
+    real(dp), dimension(0:12*nside*nside-1) :: dtt
 
-    call cmbcal(nside)
+    model     = p_model
+    alpha     = p_alpha
+    amp       = p_amp
+    r0        = p_r0
+    r_obs     = p_r_obs/FLRW%h
+    theta_obs = p_theta_obs*PI
+
+! Initialise model; compute splines; calculate age of universe
+    call init_model
+
+    call cmbcal(nside,dtt,iwrite=0)
     yout=0.
+
 end subroutine raytrace
+
+subroutine chi2(p_model,p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
+    use cosmo_params, only : model,alpha,amp,r0,r_obs,theta_obs,FLRW
+    use constants, only : PI
+    use szlocal, only : init_model
+    use szcmb
+    implicit none
+    character(len=8), intent(in) :: p_model
+    real(kind=8),     intent(in) :: p_alpha
+    real(kind=8),     intent(in) :: p_amp
+    real(kind=8),     intent(in) :: p_r0
+    real(kind=8),     intent(in) :: p_r_obs
+    real(kind=8),     intent(in) :: p_theta_obs
+    real(kind=8),     intent(out) :: yout
+    integer, parameter :: nside=8
+!
+    model     = p_model
+    alpha     = p_alpha
+    amp       = p_amp
+    r0        = p_r0
+    r_obs     = p_r_obs/FLRW%h
+    theta_obs = p_theta_obs*PI
+
+! Initialise model; compute splines; calculate age of universe
+    call init_model
+
+    yout=chi_squared(nside)
+
+end subroutine chi2

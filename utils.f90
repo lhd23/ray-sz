@@ -1317,5 +1317,92 @@ CONTAINS
           reject=.true.
       endif
   end subroutine controller
-  
+
+  subroutine ang2vec(theta,phi,vector)
+!***********************************************************************
+!     PURPOSE: renders the vector (x,y,z) corresponding to angles
+!              theta (co-latitude measured from North pole, in [0,Pi] radians)
+!              and phi (longitude measured eastward, in radians)
+!              North pole is (x,y,z)=(0,0,1)
+!     ARGUMENTS: theta,phi
+!     ROUTINES CALLED:
+!     ALGORITHM:
+!     ACCURACY:
+!     REMARKS: adapted from Healpix library v3.30
+!     AUTHOR:  Gorski et al. (2013)
+!     DATE WRITTEN:  Feb 2000
+!     REVISIONS:
+!**********************************************************************
+      use constants, only : PI
+      implicit none
+      real(dp), intent(in) :: theta,phi
+      real(dp), intent(out), dimension(3) :: vector
+      if (theta<0.0_dp .or. theta>PI) then
+          print *, 'ang2vec: theta : ',theta,' is out of range [0, Pi]'
+          STOP
+      end if
+      vector(1)=sin(theta)*cos(phi)
+      vector(2)=sin(theta)*sin(phi)
+      vector(3)=cos(theta)
+      return
+  end subroutine ang2vec
+
+  subroutine vec2ang(vector,theta,phi)
+!***********************************************************************
+!     PURPOSE: renders the angles theta, phi corresponding to vector (x,y,z)
+!              theta (co-latitude measured from North pole, in [0,Pi] radians)
+!              and phi (longitude measured eastward, in [0,2Pi[ radians)
+!              North pole is (x,y,z)=(0,0,1)
+!     ARGUMENTS: vector
+!     ROUTINES CALLED:
+!     ALGORITHM:
+!     ACCURACY:
+!     REMARKS: adapted from Healpix library v3.30
+!     AUTHOR:  Gorski et al. (2013)
+!     DATE WRITTEN:  Feb 2000
+!     REVISIONS: 2011-08
+!**********************************************************************
+      use constants, only : PI
+      implicit none
+      real(dp), intent(in), dimension(3) :: vector
+      real(dp), intent(out) :: theta,phi
+      theta=atan2(sqrt(vector(1)**2+vector(2)**2), vector(3))
+      phi=0._dp
+      if (vector(1) /= 0._dp .or. vector(2) /= 0._dp) &
+              phi=atan2(vector(2),vector(1)) ! phi in ]-pi,pi]
+      if (phi < 0._dp) phi=phi+2._dp*PI ! phi in [0,2pi[
+      return
+  end subroutine vec2ang
+
+  subroutine rotate(vector,psi,axis)
+      implicit none
+      real(dp), intent(inout) :: vector(3)
+      real(dp), intent(in) :: psi
+      character(len=1), intent(in) :: axis
+      real(dp), parameter :: ze=0._dp,on=1._dp
+      real(dp), dimension(3,3) :: m1,m2,m3
+      real(dp) :: c1,s1
+      c1=cos(psi)
+      s1=sin(psi)
+      select case (axis)
+      case ('x')
+          m3(:,1)=(/ on, ze, ze /)
+          m3(:,2)=(/ ze, c1, s1 /)
+          m3(:,3)=(/ ze,-s1, c1 /)
+          vector=matmul(m3,vector)
+      case ('y')
+          m2(:,1)=(/ c1, ze, s1 /)
+          m2(:,2)=(/ ze, on, ze /)
+          m2(:,3)=(/-s1, ze, c1 /)
+          vector=matmul(m2,vector)
+      case ('z')
+          m1(:,1)=(/ c1, s1, ze /)
+          m1(:,2)=(/-s1, c1, ze /)
+          m1(:,3)=(/ ze, ze, on /)
+          vector=matmul(m1,vector)
+      case default
+          STOP 'axis must be either ''x'',''y'' or ''z'''
+      end select
+  end subroutine rotate
+
 END MODULE utils

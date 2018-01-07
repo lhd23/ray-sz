@@ -23,7 +23,12 @@ module cosmo_params
        lb    = 3._dp * FLRW%Ol * H0**2,         &
        gkr   = KAPPA_C2 * rho_c * FLRW%Om,      &
        M0    = 0.5_dp * FLRW%Om * H0**2,        &
-       T0CMB = 2.7255_dp
+       T0CMB = 2.7255_dp,                       &
+       q0    = -0.55_dp,                        &
+       j0    = 1.0_dp
+
+  real(dp), parameter :: ldipole  = 276.4_dp * DEG2RAD
+  real(dp), parameter :: bdipole  = 29.3_dp * DEG2RAD
 
   real(dp), pointer :: ct2 => null() !age of universe in Mpc
 

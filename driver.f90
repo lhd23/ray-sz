@@ -2,11 +2,12 @@ program raytrace
     use precision1, only : dp
     use constants, only : PI
     use cosmo_params, only : model,alpha,amp,r0,r_obs,theta_obs,FLRW
+    use szlocal, only : init_model
     use szcmb
     use elliptic_cache, only : count,calls
     implicit none
     integer, parameter :: nside=8
-
+    real(dp), dimension(0:12*nside*nside-1) :: dtt
     !======== Foreground model parameters ===========
     !
     !   alpha  :   dipole parameter
@@ -31,8 +32,11 @@ program raytrace
     r_obs=r_obs/FLRW%h
     theta_obs=theta_obs*PI
 
-    call cmbcal(nside)
+! Initialise model; compute splines; calculate age of universe
+    call init_model
 
+    call cmbcal(nside,dtt,iwrite=0)
+    call cmbstats(nside,dtt)
     print *, 'count/calls: ', count, calls
 
 end program raytrace
