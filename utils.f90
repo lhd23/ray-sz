@@ -753,12 +753,12 @@ CONTAINS
   end function rc_r
 
   function rj_c(x,y,z,p)
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      ! Future work: implement special case when x,y,z real and nonnegative   !
-      ! with at most one allowed to be zero, and real(p)<=0.                  !
-      ! Note case when x,y,z are complex has not been established (not dealt  !
-      ! with in arxiv:math/9409227v1)                                         !
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Future work: implement special case when x,y,z real and nonnegative   !
+! with at most one allowed to be zero, and real(p)<=0.                  !
+! Note case when x,y,z are complex has not been established (not dealt  !
+! with in arxiv:math/9409227v1)                                         !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       implicit none
       complex(dp), intent(in) :: x,y,z,p
       complex(dp) :: rj_c
@@ -822,12 +822,12 @@ CONTAINS
   end function rj_c
 
   function rj_r(x,y,z,p)
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      ! Future work: implement special case when x,y,z real and nonnegative   !
-      ! with at most one allowed to be zero, and real(p)<=0.                  !
-      ! Note case when x,y,z are complex has not been established (not dealt  !
-      ! with in arxiv:math/9409227v1)                                         !
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Future work: implement special case when x,y,z real and nonnegative   !
+! with at most one allowed to be zero, and real(p)<=0.                  !
+! Note case when x,y,z are complex has not been established (not dealt  !
+! with in arxiv:math/9409227v1)                                         !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       implicit none
       real(dp), intent(in) :: x,y,z,p
       real(dp) :: rj_r
@@ -1061,18 +1061,18 @@ CONTAINS
   end function rf_r
 
   double precision FUNCTION rf_2(x,y,z)
-      ! ************************************************************************
-      ! *     PURPOSE: Compute Carlson fundamental integral RF
-      ! *              R_F=1/2 \int_0^\infty dt (t+x)^(-1/2) (t+y)^(-1/2) (t+z)^(-1/2)
-      ! *     ARGUMENTS: Symmetric arguments x,y,z
-      ! *     ROUTINES CALLED:  None.
-      ! *     ALGORITHM: Due to B.C. Carlson.
-      ! *     ACCURACY:  The parameter ERRTOL sets the desired accuracy.
-      ! *     REMARKS: Accepts real arguments only
-      ! *     AUTHOR:  Press et al (1992).
-      ! *     DATE WRITTEN:  25 Mar 91.
-      ! *     REVISIONS:
-      ! ***********************************************************************
+!************************************************************************
+!     PURPOSE: Compute Carlson fundamental integral RF
+!              R_F=1/2 \int_0^\infty dt (t+x)^(-1/2) (t+y)^(-1/2) (t+z)^(-1/2)
+!     ARGUMENTS: Symmetric arguments x,y,z
+!     ROUTINES CALLED:  None.
+!     ALGORITHM: Due to B.C. Carlson.
+!     ACCURACY:  The parameter ERRTOL sets the desired accuracy.
+!     REMARKS: Accepts real arguments only
+!     AUTHOR:  Press et al (1992).
+!     DATE WRITTEN:  25 Mar 91.
+!     REVISIONS:
+!**********************************************************************
       implicit none
       double precision x,y,z,ERRTOL,THIRD,a1,C2,C3,C4
       PARAMETER(ERRTOL=0.0025d0,THIRD=1.d0/3.d0, &
@@ -1108,18 +1108,18 @@ CONTAINS
   END FUNCTION rf_2
 
   FUNCTION rd_2(x,y,z)
-      ! ***********************************************************************
-      ! *     PURPOSE: Compute Carlson degenerate integral RD
-      ! *              R_D(x,y,z)=3/2 \int_0^\infty dt (t+x)^(-1/2) (t+y)^(-1/2) (t+z)^(-3/2)
-      ! *     ARGUMENTS: x,y,z
-      ! *     ROUTINES CALLED:  None.
-      ! *     ALGORITHM: Due to B.C. Carlson.
-      ! *     ACCURACY:  The parameter ERRTOL sets the desired accuracy.
-      ! *     REMARKS: An earlier algorithm of Carlson 1994
-      ! *     AUTHOR:  Press et al (1992)
-      ! *     DATE WRITTEN:  25 Mar 91.
-      ! *     REVISIONS:
-      ! ***********************************************************************
+!**********************************************************************
+!     PURPOSE: Compute Carlson degenerate integral RD
+!              R_D(x,y,z)=3/2 \int_0^\infty dt (t+x)^(-1/2) (t+y)^(-1/2) (t+z)^(-3/2)
+!     ARGUMENTS: x,y,z
+!     ROUTINES CALLED:  None.
+!     ALGORITHM: Due to B.C. Carlson.
+!     ACCURACY:  The parameter ERRTOL sets the desired accuracy.
+!     REMARKS: An earlier algorithm of Carlson 1994
+!     AUTHOR:  Press et al (1992)
+!     DATE WRITTEN:  25 Mar 91.
+!     REVISIONS:
+!**********************************************************************
       complex(dp), intent(in) :: x,y,z
       complex(dp) :: rd_2
       real(dp), parameter :: ERRTOL=0.0015_dp,a1=3._dp/14._dp,C2=1._dp/6._dp, &

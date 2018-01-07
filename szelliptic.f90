@@ -5,6 +5,8 @@ module szelliptic
                     rj,rd,rf,rc
   implicit none
 
+  real(dp), parameter :: ztol=1.e-12_dp
+
   type szcmplx
       real(dp) :: p !cubic coefficient
       real(dp) :: q
@@ -70,13 +72,13 @@ contains
         implicit none
         real(dp), intent(in) :: p,q
         type(szcmplx), intent(out) :: szc
-        complex(dp), dimension(3) :: r !roots
+        complex(dp), dimension(3) :: rts !roots
         real(dp) :: prd
 ! Clear cache for every new r (or p and q)
         if (allocated(cache)) deallocate(cache) 
-        call fcubic_roots(p,q,r)
+        call fcubic_roots(p,q,rts)
 ! Should be one real root only and less than 0
-        if (real(r(1)) > 0._dp) then
+        if (real(rts(1)) > 0._dp) then
             write(*,'(A,X,A,X,A,X,A)') &
               'warning: real root > 0.', &
               'Root should be negative to ensure', &
@@ -85,19 +87,18 @@ contains
         end if
         szc%p=p
         szc%q=q
-        szc%roots=r
+        szc%roots=rts
         szc%roots_inv=1._dp/szc%roots
-        szc%f(1)=1._dp/((r(1)-r(2))*(r(1)-r(3)))
-        szc%f(2)=1._dp/((r(2)-r(1))*(r(2)-r(3)))
-        szc%f(3)=1._dp/((r(3)-r(1))*(r(3)-r(2)))
+        szc%f(1)=1._dp/((rts(1)-rts(2))*(rts(1)-rts(3)))
+        szc%f(2)=1._dp/((rts(2)-rts(1))*(rts(2)-rts(3)))
+        szc%f(3)=1._dp/((rts(3)-rts(1))*(rts(3)-rts(2)))
         prd=real(product(szc%roots))
         if (prd < 0._dp) then
             szc%prd_roots=prd
             szc%xi=sqrt(abs(prd))
             szc%p3=1._dp/szc%xi
         else
-            STOP &
-             'init_szcmplx: sqrt(-x1.x2.x3) is imag'
+            STOP 'init_szcmplx: sqrt(-x1.x2.x3) is imag'
         end if
     end subroutine init_szcmplx
 
@@ -365,14 +366,14 @@ contains
         implicit none
         type(szcmplx), intent(in) :: szc
         real(dp), intent(in) :: ulim
-        complex(dp) :: s1
         complex(dp), dimension(3) :: ell,coeff
+        complex(dp) :: s1
         ell(1)=szellip_1311(szc,ulim)
         ell(2)=szellip_1131(szc,ulim)
         ell(3)=szellip_1113(szc,ulim)
         coeff=szc%roots*szc%f
         s1=sum(coeff*ell)
-        if (abs(aimag(s1)/s1) < 1.e-12_dp) then
+        if (abs(aimag(s1)/s1) < ztol) then
             szellip_3333=real(s1)
         else
             STOP 'szellip_3333: result should be REAL'
@@ -388,14 +389,14 @@ contains
         implicit none
         type(szcmplx), intent(in) :: szc
         real(dp), intent(in) :: ulim
-        complex(dp) :: s1
         complex(dp), dimension(3) :: ell,coeff
+        complex(dp) :: s1
         ell(1)=szellip_1311(szc,ulim)
         ell(2)=szellip_1131(szc,ulim)
         ell(3)=szellip_1113(szc,ulim)
         coeff=szc%f
         s1=sum(coeff*ell)
-        if (abs(aimag(s1)/s1) < 1.e-12_dp) then
+        if (abs(aimag(s1)/s1) < ztol) then
             szellip_1333=real(s1)
         else
             STOP 'szellip_1333: result should be REAL'
@@ -441,7 +442,6 @@ contains
         real(dp), intent(in) :: ulim
         complex(dp), dimension(6) :: c,y
         complex(dp) :: x2,x3,x4,prx,z
-        real(dp), parameter :: ztol=1.e-12_dp
         x2=szc%roots(1)
         x3=szc%roots(2)
         x4=szc%roots(3)
@@ -507,7 +507,6 @@ contains
         real(dp), intent(in) :: ulim
         complex(dp), dimension(6) :: c,y
         complex(dp) :: x2,x3,x4,prx,z        
-        real(dp), parameter :: ztol=1.e-12_dp
         x2=szc%roots(1)
         x3=szc%roots(2)
         x4=szc%roots(3)
@@ -573,7 +572,6 @@ contains
         real(dp), intent(in) :: ulim
         complex(dp), dimension(6) :: c,y
         complex(dp) :: x2,x3,x4,sumx,z
-        real(dp), parameter :: ztol=1.e-12_dp
         x2=szc%roots(1)
         x3=szc%roots(2)
         x4=szc%roots(3)

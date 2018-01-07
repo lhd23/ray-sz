@@ -223,27 +223,38 @@ contains
         type(szlocal_class), intent(inout) :: szloc
         real(dp), parameter :: acc=1.e-9_dp
         real(dp), parameter :: h=0.2_dp
-        real(dp) :: SQRTC0,t1,Rlo,Rhi
+        real(dp) :: SQRTC0,t1,Rlo,Rhi,R
+        real(dp), save :: Rlast
+!$omp threadprivate(Rlast)
         if (associated(szloc%f%R)) then
             return
         else
             allocate(szloc%f%R)
-            if (abs(szloc%t) < 1.e-14_dp) then
-                szloc%f%R=szloc%r
-                return
-            end if
             SQRTC0=sqrt(C0)
+            if (abs(szloc%t) < 1.e-14_dp) then
+                R=szloc%r
+                szloc%f%R=R
+            else
+                Rlo=szloc%r*(1._dp-h)
+                Rhi=szloc%r
+                ! Rlo=Rlast*0.9
+                ! Rhi=Rlast*1.1
 ! t0=0 so shift time coordinate so t0=age_of_univ
-            t1=ct2+szloc%t
-            Rlo=szloc%r*(1._dp-h)
-            Rhi=szloc%r
-            szloc%f%R=zbrent(R_eqn,Rlo,Rhi,acc)
-            return
+                t1=ct2+szloc%t
+                R=zbrent(R_eqn,Rlo,Rhi,acc)
+                szloc%f%R=R
+            end if
         end if
+        Rlast=R
     contains
         real(dp) function R_eqn(Rin)
             implicit none
             real(dp), intent(in) :: Rin
+            if (Rin < 0.) then
+                print *, 'R_eqn: R(t,r) is negative : ', Rin
+                print *, 'at (t,r) : ', szloc%t, szloc%r
+                STOP
+            end if
             R_eqn=t1-SQRTC0*szellip_1111(szloc%szc,ulim=Rin)
         end function R_eqn
     end subroutine get_R

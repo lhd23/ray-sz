@@ -8,6 +8,7 @@ program raytrace
     implicit none
     integer, parameter :: nside=8
     real(dp), dimension(0:12*nside*nside-1) :: dtt
+    real(dp) :: yout
     !======== Foreground model parameters ===========
     !
     !   alpha  :   dipole parameter
@@ -38,5 +39,6 @@ program raytrace
     call cmbcal(nside,dtt,iwrite=0)
     call cmbstats(nside,dtt)
     print *, 'count/calls: ', count, calls
-
+    ! yout=chi_squared(nside)
+    ! print *, yout
 end program raytrace

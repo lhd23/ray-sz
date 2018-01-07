@@ -31,7 +31,7 @@ contains
         real(dp), dimension(4) :: pvi,nvi
         real(dp), dimension(:), allocatable :: yi,yf
         real(dp) :: kti,ktf,si,ds,t_init,zp1
-        t_init=0._dp
+        t_init=0._dp !hardcoded
         si=0._dp
         ds=1.e-2_dp
         call construct_ray(t_init,initial_pos,theta_local_sky,phi_local_sky,pvi,nvi)
@@ -118,10 +118,10 @@ contains
                 errold=err
 ! Exit strategy given by iexit and exit value = val_exit
                 if (iexit == 1) then
-                    zo=abs(yo(1)/yi(1))-1._dp
+                    zo=abs(yo(1)/yinit(1))-1._dp
                     if (zo >= val_exit) EXIT !redshift exceeds exit value
                 else if (iexit == 2) then
-                    zp1=abs(yo(1)/yi(1))
+                    zp1=abs(yo(1)/yinit(1))
                     dL=yo(10)*zp1*zp1
                     if (dL >= val_exit) EXIT !dL exceeds exit value
                 else
@@ -144,7 +144,7 @@ contains
             real(dp) zint
             yint=ydout(dsi,si,s,k,yi,yo)
             if (iexit == 1) then
-                zint=abs(yint(1)/yi(1))-1._dp
+                zint=abs(yint(1)/yinit(1))-1._dp
                 f=zint-val_exit
             else if (iexit == 2) then
                 f=yint(10)-val_exit

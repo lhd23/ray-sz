@@ -26,7 +26,9 @@ SRC = precision1.f90 constants.f90 abscissae.f90 utils.f90 cosmo_params.f90 \
 OBJ = $(SRC:.f90=.o)
 MOD = $(SRC:.f90=.mod)
 
-all: $(LIBDIR)/libmylib.a main
+all: lib main
+
+lib: $(LIBDIR)/libmylib.a
 
 $(LIBDIR)/libmylib.a: $(SRC)
 	mkdir -p $(INCDIR) $(LIBDIR)

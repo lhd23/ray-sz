@@ -126,7 +126,7 @@ contains
 !                                                                    !
 ! where v=cz                                                         !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        use cosmo_params, only : r_obs,theta_obs,q0,j0,H0,FLRW, &
+        use cosmo_params, only : r_obs,theta_obs,q0,j0,FLRW, &
                 ldipole,bdipole
         use sznullgeo, only : rayshoot_dr
         implicit none
@@ -140,9 +140,10 @@ contains
         real(dp) :: tht_dpl,phi_dpl,tht_dpl0,phi_dpl0
         real(dp) :: tht,phi,dL,z_exit,a1,a2,b1,b2
         integer  :: i,n,io
+        real(dp), parameter :: H_0=100._dp*FLRW%h !km/s/Mpc
         real(dp), parameter :: &
-                VEL2RED=1._dp/(SPEED_OF_LIGHT*1.0e3_dp)
-
+                VEL2RED=1._dp/(SPEED_OF_LIGHT*1.0e-3_dp)
+        !q0 j0 what for?
 ! observed dipole angle
         tht_dpl0=HALFPI-bdipole
         phi_dpl0=ldipole
@@ -173,16 +174,18 @@ contains
         do i=1,n
             read(77,*) vi,di,vpeci,sig_vi,li,bi
             di=di/FLRW%h !evaluate h to get in units Mpc
-            sig_di=(sig_vi/H0)
+            sig_di=sig_vi/H_0
             z_exit=vi*VEL2RED
             call galactic2szekeres(li,bi,tht,phi,a1,a2,b1,b2)
             call rayshoot_dr(obs_pos,tht,phi,dL,iexit=1,val_exit=z_exit)
+            ! print *, z_exit,di,dL
             chi2_arr(i)=((di-dL)/sig_di)**2
         end do
 !$omp end parallel do
 
-        close(77)
         chi_squared=sum(chi2_arr)
+
+        close(77)
         deallocate(chi2_arr)
         return
     end function chi_squared
