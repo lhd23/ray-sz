@@ -11,23 +11,24 @@
 !
 !           0 <= thta_obs <= 1
 !
-subroutine raytrace(p_model,p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
+subroutine raytrace(p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
     use cosmo_params, only : model,alpha,amp,r0,r_obs,theta_obs,FLRW
     use constants, only : PI
     use szlocal, only : init_model
     use szcmb
     implicit none
-    character(len=8), intent(in) :: p_model
+!============= INPUT PARAMETERS ===============
     real(kind=8),     intent(in) :: p_alpha
     real(kind=8),     intent(in) :: p_amp
     real(kind=8),     intent(in) :: p_r0
     real(kind=8),     intent(in) :: p_r_obs
     real(kind=8),     intent(in) :: p_theta_obs
+!==============================================
     real(kind=8),     intent(out) :: yout
     integer, parameter :: nside=8
     real(dp), dimension(0:12*nside*nside-1) :: dtt
 
-    model     = p_model
+    model     = 'Szekeres'
     alpha     = p_alpha
     amp       = p_amp
     r0        = p_r0
@@ -42,22 +43,23 @@ subroutine raytrace(p_model,p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
 
 end subroutine raytrace
 
-subroutine chi2(p_model,p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
+subroutine loglike(p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
     use cosmo_params, only : model,alpha,amp,r0,r_obs,theta_obs,FLRW
     use constants, only : PI
     use szlocal, only : init_model
     use szcmb
     implicit none
-    character(len=8), intent(in) :: p_model
+!============= INPUT PARAMETERS ===============
     real(kind=8),     intent(in) :: p_alpha
     real(kind=8),     intent(in) :: p_amp
     real(kind=8),     intent(in) :: p_r0
     real(kind=8),     intent(in) :: p_r_obs
     real(kind=8),     intent(in) :: p_theta_obs
+!==============================================
     real(kind=8),     intent(out) :: yout
-    integer, parameter :: nside=8
-!
-    model     = p_model
+    integer,          parameter :: nside=8
+
+    model     = 'Szekeres'
     alpha     = p_alpha
     amp       = p_amp
     r0        = p_r0
@@ -67,6 +69,6 @@ subroutine chi2(p_model,p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
 ! Initialise model; compute splines; calculate age of universe
     call init_model
 
-    yout=chi_squared(nside)
+    yout=-0.5_dp*chi_squared(nside)
 
-end subroutine chi2
+end subroutine loglike
