@@ -126,52 +126,44 @@ contains
 !                                                                    !
 ! where v=cz                                                         !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        use cosmo_params, only : r_obs,theta_obs,q0,j0,FLRW, &
-                ldipole,bdipole
+        use cosmo_params, only : r_obs,theta_obs,FLRW, &
+                                 ldipole,bdipole
         use sznullgeo, only : rayshoot_dr
         implicit none
         real(dp) :: chi_squared
         integer,  intent(in) :: nside
+        integer,  parameter  :: Ntot=4534
         real(dp), dimension(0:12*nside*nside-1) :: dtt
-        real(dp), dimension(:), allocatable :: chi2_arr
-        real(dp), dimension(3) :: dpl_vec
-        real(dp), dimension(3) :: obs_pos
+        real(dp), dimension(1:Ntot) :: chi2_arr
+        real(dp), dimension(1:3)    :: dpl_vec
+        real(dp), dimension(1:3)    :: obs_pos
         real(dp) :: vi,di,vpeci,sig_vi,li,bi,sig_di
         real(dp) :: tht_dpl,phi_dpl,tht_dpl0,phi_dpl0
         real(dp) :: tht,phi,dL,z_exit,a1,a2,b1,b2
-        integer  :: i,n,io
+        integer  :: i
         real(dp), parameter :: H_0=100._dp*FLRW%h !km/s/Mpc
         real(dp), parameter :: &
                 VEL2RED=1._dp/(SPEED_OF_LIGHT*1.0e-3_dp)
-        !q0 j0 what for?
 ! observed dipole angle
-        tht_dpl0=HALFPI-bdipole
-        phi_dpl0=ldipole
+        tht_dpl0=HALFPI-bdipole*DEG2RAD
+        phi_dpl0=ldipole*DEG2RAD
 
         call cmbcal(nside,dtt,iwrite=0)
         call dipole_vec(nside,dtt,dpl_vec)
         call vec2ang(dpl_vec,tht_dpl,phi_dpl)
 
-        obs_pos=(/r_obs,theta_obs,0.543*PI/)
-
-        open(unit=77,file='Composite_LG.txt',status='OLD',action='READ')
-        n=0
-        do
-            read(77,*,iostat=io) vi,di,vpeci,sig_vi,li,bi
-            if (io /= 0) EXIT
-            n=n+1
-        end do
-        rewind(77)
-        allocate(chi2_arr(1:n))
+        obs_pos=(/ r_obs, theta_obs, 0.543*PI /)
 
         a1=phi_dpl0
         a2=HALFPI-tht_dpl0
         b1=HALFPI-tht_dpl
         b2=phi_dpl
 
+        open(unit=77,file='Composite_LG.txt',status='OLD',action='READ')
+
 !$omp parallel do private(vi,di,vpeci,sig_vi,li,bi,sig_di,tht,phi,dL,z_exit) &
 !$omp shared(obs_pos,chi2_arr,a1,a2,b1,b2)
-        do i=1,n
+        do i=1,Ntot
             read(77,*) vi,di,vpeci,sig_vi,li,bi
             di=di/FLRW%h !evaluate h to get in units Mpc
             sig_di=sig_vi/H_0
@@ -186,7 +178,6 @@ contains
         chi_squared=sum(chi2_arr)
 
         close(77)
-        deallocate(chi2_arr)
         return
     end function chi_squared
 

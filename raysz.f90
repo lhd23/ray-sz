@@ -39,6 +39,7 @@ subroutine raytrace(p_alpha,p_amp,p_r0,p_r_obs,p_theta_obs,yout)
     call init_model
 
     call cmbcal(nside,dtt,iwrite=0)
+    call cmbstats(nside,dtt)
     yout=0.
 
 end subroutine raytrace

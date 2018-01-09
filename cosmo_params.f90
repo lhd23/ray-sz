@@ -10,15 +10,18 @@ module cosmo_params
       real(dp) :: Ol
   end type FLRW_pars
 
-! Background model parameters 
+! Planck 2013 parameters
+  real(dp), parameter :: h_plk  = 0.673_dp
+  real(dp), parameter :: Om_plk = 0.315_dp
+  real(dp), parameter :: Ok_plk = 0._dp
+  real(dp), parameter :: Ol_plk = 0.685_dp
+
+! Background model parameters
   type(FLRW_pars), parameter :: &
-          FLRW=FLRW_pars(h=0.673_dp, &
-                        Om=0.315_dp, &
-                        Ok=0._dp, &
-                        Ol=0.685_dp)
+          FLRW=FLRW_pars(h_plk,Om_plk,Ok_plk,Ol_plk)
 
   real(dp), parameter ::                        &
-       H0    = 1e5_dp * FLRW%h * TU / LU / CS,  & !1/Mpc
+       H0    = 1.e5_dp * FLRW%h * TU / LU / CS, & !1/Mpc
        rho_c = 3._dp * H0**2 / KAPPA_C2,        &
        lb    = 3._dp * FLRW%Ol * H0**2,         &
        gkr   = KAPPA_C2 * rho_c * FLRW%Om,      &
@@ -27,8 +30,8 @@ module cosmo_params
        q0    = -0.55_dp,                        &
        j0    = 1.0_dp
 
-  real(dp), parameter :: ldipole  = 276.4_dp * DEG2RAD
-  real(dp), parameter :: bdipole  = 29.3_dp * DEG2RAD
+  real(dp), parameter :: ldipole  = 276.4_dp
+  real(dp), parameter :: bdipole  = 29.3_dp
 
   real(dp), pointer :: ct2 => null() !age of universe in Mpc
 

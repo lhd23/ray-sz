@@ -4,6 +4,8 @@
 *.py
 *.out
 *.so
+*.dSYM/*/*
+.DS_Store
 lib/*
 main
 test
