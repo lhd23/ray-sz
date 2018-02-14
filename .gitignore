@@ -2,9 +2,9 @@
 *.mod
 *.txt
 *.py
+*.npy
 *.out
 *.so
-*.dSYM/*/*
 .DS_Store
 lib/*
 main

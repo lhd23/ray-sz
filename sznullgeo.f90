@@ -179,7 +179,11 @@ contains
         integer :: i,j,k
         x=y(5:8)
         v=y(1:4)
-        if (x(2) < 0.) write(*,*) 'negative r coord: ', x(2)
+        if (x(2) < 0.) then
+            write(*,*) 'negative r coord: ', x(2)
+            x(2)=abs(x(2))
+            if (v(2) < 0.) v(2)=abs(v(2))
+        end if
         xc=init_four_position(x)
         call christoffel(xc,gam)
         do k=1,4

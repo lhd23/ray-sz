@@ -140,8 +140,11 @@ contains
         real(dp) :: vi,di,vpeci,sig_vi,li,bi,sig_di
         real(dp) :: tht_dpl,phi_dpl,tht_dpl0,phi_dpl0
         real(dp) :: tht,phi,dL,z_exit,a1,a2,b1,b2
+        real(dp) :: eps,Tdpl
         integer  :: i
         real(dp), parameter :: H_0=100._dp*FLRW%h !km/s/Mpc
+        real(dp), parameter :: Tdpl0=5.64_dp
+        real(dp), parameter :: tol=0.1_dp
         real(dp), parameter :: &
                 VEL2RED=1._dp/(SPEED_OF_LIGHT*1.0e-3_dp)
 ! observed dipole angle
@@ -149,7 +152,13 @@ contains
         phi_dpl0=ldipole*DEG2RAD
 
         call cmbcal(nside,dtt,iwrite=0)
-        call dipole_vec(nside,dtt,dpl_vec)
+        call dipole_vec(nside,dtt,dpl_vec,Tdpl)
+        eps=abs(Tdpl-Tdpl0)
+        if (eps > tol) then
+            chi_squared=1.0e10_dp
+            return
+        end if
+        print *, Tdpl
         call vec2ang(dpl_vec,tht_dpl,phi_dpl)
 
         obs_pos=(/ r_obs, theta_obs, 0.543*PI /)
@@ -181,7 +190,8 @@ contains
         return
     end function chi_squared
 
-    subroutine dipole_vec(nside,map,dpl_vec)
+    subroutine dipole_vec(nside,map,dpl_vec,Tdipole)
+        use cosmo_params, only : T0CMB
         implicit none
         integer, intent(in) :: nside
         real(dp), dimension(:), intent(in) :: map
@@ -190,7 +200,8 @@ contains
         real(dp), dimension(2) :: zbounds=(/-1._dp,1._dp/)
         integer, parameter :: lmax=2,mmax=2
         complex(dp), dimension(1,0:lmax,0:mmax) :: alm
-        real(dp) :: a10,a11r,a11i,norm
+        real(dp), dimension(0:lmax,1) :: cl
+        real(dp) :: a10,a11r,a11i,norm,Tdipole
         dw8=1._dp
         call map2alm(nside,lmax,mmax,map,alm,zbounds,dw8)
         a10=real(alm(1,1,0))
@@ -201,6 +212,9 @@ contains
         dpl_vec(3)=+a10
         norm=sqrt(a10*a10+2._dp*(a11r**2+a11i**2))
         dpl_vec=dpl_vec/norm
+! compute Temperature dipole (magnitude)
+        call alm2cl(lmax,mmax,alm,cl)
+        Tdipole=1.5_dp*sqrt(cl(1,1)/PI)*T0CMB*1e3_dp
     end subroutine dipole_vec
 
 
