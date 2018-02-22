@@ -44,7 +44,7 @@ main: driver.o
 	$(F90C) $^ $(LIBS) $(INCLUDES) $(F90FLAGS) -o $@
 
 raysz:
-	f2py -c --fcompiler=gnu95 --f90flags="-fopenmp -O3" $(LIBS) $(OMPLIB) $(INCLUDES) -m $@ raysz.f90
+	f2py -c --fcompiler=gnu95 --f90flags="-fopenmp -O3" $(LIBS) $(OMPLIB) $(INCLUDES) -m $@ szwrapper.f90
 
 test: $(OBJ) test.o
 	$(F90C) $^ $(LIBS) $(INCLUDES) $(F90FLAGS) -o $@

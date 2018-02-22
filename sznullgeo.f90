@@ -53,14 +53,15 @@ contains
             yi(5:8)=pvi
         end if
         call rayshoot(si,yi,ds,yf,iexit,val_exit)
-        kti=yi(1) !k^t at observer
-        ktf=yf(1) !k^t at source
-        zp1=abs(ktf/kti)
         if (iexit == 1) then
             !return dL at given z
+            zp1=val_exit+1._dp
             yout=yf(10)*zp1*zp1
         else
             !return z (either at given t or dL)
+            kti=yi(1) !k^t at observer
+            ktf=yf(1) !k^t at source
+            zp1=abs(ktf/kti)
             yout=zp1-1._dp 
         end if
         deallocate(yf)
@@ -81,7 +82,7 @@ contains
 !                                                              !
 ! where s is affine parameter                                  !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        use utils, only : dopri_stepper,controller,ydout,zbrent
+        use utils, only : dopri_stepper,controller,ydout,zbrent,rtbis
         implicit none
         real(dp), intent(inout) :: si,ds
         real(dp), dimension(:), intent(in) :: yinit
@@ -134,6 +135,11 @@ contains
         end do
 ! Find s=sf corresponding to exit value
         sf=zbrent(f,si,so,sacc)
+! If zbrent goes wrong, fall back to trusty rtbis
+        if (sf > so .or. sf < si) then
+            ! print *, 'sf outside bounds: ', sf,si,so
+            sf=rtbis(f,si,so,sacc)
+        end if
 ! Find soln at sf by interpolating between yi and yo
         yf=ydout(dsi,si,sf,k,yi,yo)
     contains 
