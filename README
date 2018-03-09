@@ -1,4 +1,0 @@
-ray-sz is a code for raytracing in Szekeres spacetime models.
-This code requires the HEALPIX library [http://healpix.sourceforge.net/] and
-cfitsio library [https://heasarc.gsfc.nasa.gov/fitsio/] to be installed.
-
