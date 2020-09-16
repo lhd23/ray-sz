@@ -22,7 +22,7 @@ INCDIR = include
 
 SRC = precision1.f90 constants.f90 abscissae.f90 utils.f90 cosmo_params.f90 \
 		szclass.f90 szfuncs.f90 elliptic_cache.f90 szelliptic.f90 \
-		szlocal.f90 szgeom.f90 sznullgeo.f90 szcmb.f90 test_module.f90
+		szlocal.f90 szgeom.f90 sznullgeo.f90 test_module.f90
 OBJ = $(SRC:.f90=.o)
 MOD = $(SRC:.f90=.mod)
 
@@ -40,7 +40,7 @@ $(LIBDIR)/libmylib.a: $(SRC)
 INCLUDES += -I$(INCDIR)
 LIBS += -L$(LIBDIR) -lmylib
 
-main: driver.o
+main: szcmb.o driver.o
 	$(F90C) $^ $(LIBS) $(INCLUDES) $(F90FLAGS) -o $@
 
 raysz:
