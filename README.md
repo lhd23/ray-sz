@@ -8,7 +8,7 @@ This is done by first transforming the equations down to a
 small set of elliptic integrals that can be evaluated efficiently as
 [Carlson symmetric forms](https://en.wikipedia.org/wiki/Carlson_symmetric_form).
 * Ray trace through these spacetimes and return the relevant optical and
-observational quantities.
+observational quantities of interest.
 
 The Szekeres solutions represent a general class of exact inhomogeneous
 spacetimes. These spacetimes are useful for modelling non-perturbatively
