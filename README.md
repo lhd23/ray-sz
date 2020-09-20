@@ -15,7 +15,9 @@ spacetimes. These spacetimes are useful for modelling nonlinear
 ~10 Mpc cosmological structures, such as galaxy clusters or voids.
 These solutions encompass the more frequently used spherically symmetric solutions,
 inlcuding the LTB family and by extension the FLRW solutions too (though it
-can recover this special case it is not designed to do so in an efficient way).
+is not designed to do so in an efficient way).
+
+A simple Python wrapper is also included. Compile with `make raysz`.
 
 
 Dependencies
@@ -24,9 +26,10 @@ Most of the code is self-contained but we make light use of
 
 * [HEALPix library](http://healpix.sourceforge.net/)
 
-where we need to initalise geodesics on the sky and manipulate resulting 
+where we need to initalise geodesics on the sky and analyse resulting 
 temperature maps. Note in order to install Healpix one will also
 need
 
 * [CFITSIO](https://heasarc.gsfc.nasa.gov/fitsio/)
+
 
