@@ -1,22 +1,28 @@
-ray-sz: a general purpose Szekeres code
+ray-sz: ray tracing through exact inhomogeneous spacetimes
 =======================================
-``ray-sz`` is a Fortran code for
+``ray-sz`` can be used to
 
-* numerically solving the Einstein field equations for the Szekeres family
-of solutions by reducing the equations down to a small set of elliptic
-integrals that can be evaluated quickly as Carlson R-functions
-* raytracing through these spacetimes and return the relevant optical and
+* Numerically solve the Einstein field equations for the Szekeres class
+of solutions. This is done by first transforming the equations down to a
+small set of elliptic integrals that can be evaluated efficiently as
+[Carlson symmetric forms](https://en.wikipedia.org/wiki/Carlson_symmetric_form)
+* Ray trace through these spacetimes and return the relevant optical and
 observational quantities
 
-Note the Szekeres solutions generalises the LTB family and, by extension,
-the FLRW solutions too (though it can recover this special case it is not
-designed to do so in an efficient manner).
+The Szekeres class of solutions encompasses spherically symmetric solutions,
+inlcuding the LTB family and, by extension, the FLRW solutions too (though it
+can recover this special case it is not designed to do so in an efficient way).
 
 
 Dependencies
 ------------
-This code requires the following:
+Most of the code is self-contained but we make light use of
 
 * [HEALPix library](http://healpix.sourceforge.net/)
+
+where we need to initalise geodesics on the sky and compute 
+harmonic statistics. Note in order to install Healpix one will also
+need
+
 * [CFITSIO](https://heasarc.gsfc.nasa.gov/fitsio/)
 
