@@ -11,7 +11,7 @@ small set of elliptic integrals that can be evaluated efficiently as
 observational quantities of interest.
 
 The Szekeres solutions represent a general class of exact inhomogeneous
-spacetimes. These spacetimes are useful for modelling non-perturbatively
+spacetimes. These spacetimes are useful for modelling nonlinear
 ~10 Mpc cosmological structures, such as galaxy clusters or voids.
 These solutions encompass the more frequently used spherically symmetric solutions,
 inlcuding the LTB family and by extension the FLRW solutions too (though it
