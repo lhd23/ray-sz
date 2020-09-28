@@ -7,7 +7,7 @@ of solutions](https://projecteuclid.org/euclid.cmp/1103860587).
 This is done by first transforming the equations down to a
 small set of elliptic integrals that can be evaluated efficiently as
 [Carlson symmetric forms](https://en.wikipedia.org/wiki/Carlson_symmetric_form).
-* Ray trace through these spacetimes and return the relevant optical and
+* Ray trace through these spacetimes and return relevant
 observational quantities of interest.
 
 The Szekeres solutions represent a general class of exact inhomogeneous
