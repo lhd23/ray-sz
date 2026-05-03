@@ -34,3 +34,4 @@ need
 * [CFITSIO](https://heasarc.gsfc.nasa.gov/fitsio/)
 
 
+![image](https://github.com/lhd23/ray-sz/examples/rho_mesh.png)
